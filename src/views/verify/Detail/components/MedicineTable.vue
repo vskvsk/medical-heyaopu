@@ -583,6 +583,20 @@ export default {
         const params = {}
         target[column] = value
 
+        // 同步更新 Details 对应字段
+        if (column === 'quantity') {
+          target.drug_quantity = value // 同步更新 Details.drug_quantity
+        } else if (column === 'drugProcessing') {
+          target.pk_drug_processing = value // 同步更新 Details.pk_drug_processing
+          // 查找对应的加工类型名称
+          const processingItem = this.drugProcessingList.find(item => item.id === value)
+          if (processingItem) {
+            target.pk_drug_processing_name = processingItem.label
+          }
+        } else if (column === 'unit') {
+          target.pk_drug_unit_name = value // 同步更新 Details.pk_drug_unit_name
+        }
+
         const errorKey = `${key}-${column}`
         if (this.validationErrors[errorKey]) {
           this.$delete(this.validationErrors, errorKey)
@@ -619,15 +633,29 @@ export default {
       newUsageDrugs.push({
         key: `new-${Date.now()}`,
         area: `区域${newUsageDrugs.length + 1}`,
-        medicineCode: '',
-        medicineName: '', // 添加medicineName字段初始化
+        // 对应 Details 字段的完整映射
+        pk_detail: '', // 明细主键 - 新增时为空，保存后由后端生成
+        pk_prescribe: this.detail.pk_prescribe || '', // 处方主键
+        pk_materials: '', // 药材PK (对应原 medicineCode)
+        drug_code: '', // 药材编码 - 新增字段
+        drug_name: '', // 药材名称 (对应原 medicineName)
+        drug_origquantity: '', // 原使用量 - 新增字段
+        drug_quantity: '', // 使用量 (对应原 quantity)
+        pk_drug_processing: '', // 加工类型PK (对应原 drugProcessing)
+        pk_drug_processing_name: '', // 加工类型名称 - 新增字段
+        pk_drug_unit: '', // 计量单位PK - 新增字段
+        pk_drug_unit_name: 'g', // 计量单位名称 (对应原 unit)
+
+        // 保留原有字段以兼容现有逻辑
+        medicineCode: '', // 兼容字段，映射到 pk_materials
+        medicineName: '', // 兼容字段，映射到 drug_name
         drugForshort: '',
-        quantity: '',
-        unit: 'g',
+        quantity: '', // 兼容字段，映射到 drug_quantity
+        unit: 'g', // 兼容字段，映射到 pk_drug_unit_name
         retailPrice: '',
         conversionRate: '',
         processMethod: '',
-        drugProcessing: '',
+        drugProcessing: '', // 兼容字段，映射到 pk_drug_processing
         remarks: ''
       })
       this.$emit('update:detail', {
@@ -752,10 +780,21 @@ export default {
       if (!target) return
 
       if (!value) {
-        // 处理清除操作
+        // 处理清除操作 - 清空所有药材相关字段
+        // Details 字段
+        target.pk_materials = ''
+        target.drug_code = ''
+        target.drug_name = ''
+        target.drug_quantity = ''
+        target.drug_origquantity = ''
+        target.pk_drug_processing = ''
+        target.pk_drug_processing_name = ''
+        target.pk_drug_unit = ''
+        target.pk_drug_unit_name = 'g'
+
+        // 兼容字段
         target.medicineCode = ''
         target.medicineName = ''
-        // 清空所有相关字段
         target.quantity = ''
         target.retailPrice = ''
         target.conversionRate = ''
@@ -764,7 +803,14 @@ export default {
       } else {
         const selectedMedicine = this.searchResults.find(item => item.code === value)
         if (selectedMedicine) {
-          // 更新药材信息
+          // 更新 Details 对应字段
+          target.pk_materials = selectedMedicine.code
+          target.drug_code = selectedMedicine.code // 药材编码通常与PK相同
+          target.drug_name = selectedMedicine.name
+          target.drug_quantity = selectedMedicine.quantity || ''
+          target.drug_origquantity = selectedMedicine.quantity || '' // 原使用量初始等于使用量
+
+          // 更新兼容字段
           target.medicineCode = selectedMedicine.code
           target.medicineName = selectedMedicine.name
           target.quantity = selectedMedicine.quantity
