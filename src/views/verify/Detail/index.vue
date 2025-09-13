@@ -8,6 +8,7 @@
           :value="detail"
           :diseasePreloadedResults="preloadedDiseaseResults"
           :syndromePreloadedResults="preloadedSyndromeResults"
+          :dictionaries="dictionaries"
           @input="handleDetailChange" />
 
         <!-- 内容区 -->
@@ -31,7 +32,7 @@
 </template>
 
 <script>
-import { getPrescriptionDetail, queryLabel } from '@/api/annotation'
+import { getPrescriptionDetail, queryLabel, getDictionaries } from '@/api/annotation'
 import { message } from 'ant-design-vue'
 import DetailForm from './components/DetailForm.vue'
 import MedicineTable from './components/MedicineTable.vue'
@@ -53,6 +54,8 @@ export default {
       preloadedSyndromeResults: [],
       // 是否核方状态，从路由参数获取
       isNuclearSide: false,
+      // 字典数据
+      dictionaries: [],
       detail: {
         // 基础信息
         id: '',
@@ -128,9 +131,31 @@ export default {
     this.isNuclearSide = isNuclearSide === 'true' || isNuclearSide === true
     console.log('是否核方状态:', this.isNuclearSide)
 
+    // 加载字典数据
+    this.loadDictionaries()
     this.getDetail()
   },
   methods: {
+    // 加载字典数据
+    async loadDictionaries () {
+      try {
+        console.log('开始加载字典数据...')
+        const res = await getDictionaries()
+        console.log('字典数据加载结果:', res)
+
+        if (res.code === 0 && res.data) {
+          this.dictionaries = res.data
+          console.log('字典数据加载成功:', this.dictionaries)
+        } else {
+          console.error('字典数据加载失败:', res.message)
+          message.error('字典数据加载失败')
+        }
+      } catch (error) {
+        console.error('字典数据加载异常:', error)
+        message.error('字典数据加载异常')
+      }
+    },
+
     handleDetailChange (newDetail) {
       this.detail = { ...this.detail, ...newDetail }
     },

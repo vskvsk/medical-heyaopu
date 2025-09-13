@@ -39,10 +39,13 @@ const labelApi = {
   getContraindicationDict: '/system/dict-data/type',
 
   // 获取药剂类型数据
-  getDosageFormsData: '/robot/prescribe/get-dosage-forms-data',
+  getDosageFormsData: '/htai/bd/drug_types',
 
   // 获取包装规格列表
-  getPackingSizeList: '/robot/prescribe/get-packing-size-list'
+  getPackingSizeList: '/robot/prescribe/get-packing-size-list',
+
+  // 获取字典列表数据
+  getDictionaries: '/htai/bd/dictionaries'
 }
 
 // 登录 - 适配和药铺接口
@@ -351,6 +354,9 @@ export function getPrescriptionDetail (id) {
           dosesTotal: parseInt(data.drug_count) || 1,
           dosesDaily: parseInt(data.drug_evyday) || 1,
           dosesEachUseNum: parseInt(data.drug_dosis) || 1,
+          medicationMethod: data.pk_drugmmode || '',
+          packMethod: data.pk_packmethod || '',
+          packingSize: data.pk_packingsize || '',
           // 费用信息
           priceConsult: parseFloat(data.cost_consultation) || 0,
           priceDrug: parseFloat(data.cost_medicinals) || 0,
@@ -425,9 +431,9 @@ export function updateImagePrescription (data) {
     drug_evyday: parseInt(data.dosesDaily) || parseInt(data.drug_evyday) || 1,
     drug_dosis: parseInt(data.dosesEachUseNum) || parseInt(data.drug_dosis) || 1,
     drug_frequency: parseInt(data.drug_frequency) || 7,
-    pk_drugmmode: data.pk_drugmmode || '',
-    pk_packmethod: data.pk_packmethod || '',
-    pk_packingsize: data.pk_packingsize || '',
+    pk_drugmmode: data.medicationMethod || data.pk_drugmmode || '',
+    pk_packmethod: data.packMethod || data.pk_packmethod || '',
+    pk_packingsize: data.packingSize || data.pk_packingsize || '',
     medicat_time: data.medicationTime || data.medicat_time || '',
     medicat_taboo: data.medicationTaboo || data.medicat_taboo || '',
     additionalremarks: data.drugstoreMessage || data.additionalremarks || '',
@@ -823,32 +829,98 @@ export function getDosageFormsData () {
   if (isMockMode()) {
     return new Promise((resolve) => {
       setTimeout(() => {
-        // 模拟药剂类型数据
-        const mockData = {
-          dosageForms: [
-            {
-              value: '1',
-              label: '汤剂',
-              children: [
-                { value: '11', label: '普通汤剂' },
-                { value: '12', label: '精制汤剂' }
-              ]
-            },
-            {
-              value: '2',
-              label: '丸剂',
-              children: [
-                { value: '21', label: '水丸' },
-                { value: '22', label: '蜜丸' }
-              ]
-            }
-          ],
-          drugLevels: [
-            { value: '1', label: '一级' },
-            { value: '2', label: '二级' },
-            { value: '3', label: '三级' }
-          ]
-        }
+        // 模拟药剂类型数据，按照新接口格式
+        const mockData = [
+          {
+            pk_drugtypes: 'DT001',
+            pk_father: '',
+            dt_code: '0101',
+            dt_name: '汤剂',
+            dt_abbreviatio: '汤',
+            dt_ishalf: 0,
+            dt_ishalf_name: '否',
+            dt_isaccessories: 0,
+            dt_isaccessories_name: '否',
+            dt_isexcess: 1,
+            dt_isexcess_name: '是',
+            drug_level: 'DIC2022010001',
+            drug_level_name: '普通',
+            drug_level_combox: [
+              { value: 'DIC2022010001', code: '￥PT', text: '普通' },
+              { value: 'DIC2022010002', code: '￥GJ', text: '高级' }
+            ],
+            drug_mmode: 'DIC2022030020',
+            drug_mmode_name: '内服',
+            drug_mmode_combox: [
+              { value: 'DIC2022030020', code: '01', text: '内服' },
+              { value: 'DIC2022030021', code: '02', text: '外用' }
+            ],
+            dt_packmethod: 'DIC2020070002',
+            dt_packmethod_name: '品牌包装',
+            dt_packmethod_combox: [
+              { value: 'DIC2020070002', code: 'brandpack', text: '品牌包装' },
+              { value: 'DIC2020070003', code: 'simplepack', text: '简易包装' }
+            ],
+            dt_remarks: '传统汤剂',
+            children: [],
+            tally1_left: '共',
+            tally1_right: '剂',
+            tally1_value: 7,
+            tally2_left: '每日',
+            tally2_right: '次',
+            tally2_value: 2,
+            tally4_left: '每次',
+            tally4_right: '包',
+            tally4_value: 1,
+            tally3_left: '共',
+            tally3_right: '包',
+            tally3_value: 14,
+            tally_description: '共7剂，每日2次，每次1包，共14包'
+          },
+          {
+            pk_drugtypes: 'DT002',
+            pk_father: '',
+            dt_code: '0306',
+            dt_name: '浓缩丸',
+            dt_abbreviatio: '丸',
+            dt_ishalf: 1,
+            dt_ishalf_name: '是',
+            dt_isaccessories: 1,
+            dt_isaccessories_name: '是',
+            dt_isexcess: 0,
+            dt_isexcess_name: '否',
+            drug_level: 'DIC2022010001',
+            drug_level_name: '普通',
+            drug_level_combox: [
+              { value: 'DIC2022010001', code: '￥PT', text: '普通' }
+            ],
+            drug_mmode: 'DIC2022030020',
+            drug_mmode_name: '内服',
+            drug_mmode_combox: [
+              { value: 'DIC2022030020', code: '01', text: '内服' }
+            ],
+            dt_packmethod: 'DIC2020070002',
+            dt_packmethod_name: '品牌包装',
+            dt_packmethod_combox: [
+              { value: 'DIC2020070002', code: 'brandpack', text: '品牌包装' }
+            ],
+            dt_remarks: '浓缩丸剂',
+            children: [],
+            tally1_left: '共',
+            tally1_right: '剂',
+            tally1_value: 10,
+            tally2_left: '每日',
+            tally2_right: '次',
+            tally2_value: 3,
+            tally4_left: '每次',
+            tally4_right: '丸',
+            tally4_value: 6,
+            tally3_left: '共',
+            tally3_right: '丸',
+            tally3_value: 180,
+            tally_description: '共10剂，每日3次，每次6丸，共180丸'
+          }
+        ]
 
         resolve({
           code: 0,
@@ -862,7 +934,26 @@ export function getDosageFormsData () {
   // 生产环境使用真实接口
   return request({
     url: labelApi.getDosageFormsData,
-    method: 'get'
+    method: 'get',
+    headers: {
+      'Content-Type': 'application/json',
+      'access_token': localStorage.getItem('Access-Token')?.replace('Bearer ', '') || ''
+    }
+  }).then(response => {
+    // 适配和药铺接口返回格式
+    if (response.errcode === 0 && response.data) {
+      return {
+        code: 0,
+        data: response.data,
+        message: response.errmsg || 'success'
+      }
+    } else {
+      return {
+        code: response.errcode || 500,
+        data: [],
+        message: response.errmsg || '获取药剂类型数据失败'
+      }
+    }
   })
 }
 
@@ -892,5 +983,79 @@ export function getPackingSizeList (packMethod) {
     url: labelApi.getPackingSizeList,
     method: 'get',
     params: { packMethod }
+  })
+}
+
+// 获取字典列表数据
+export function getDictionaries () {
+  // 在mock环境下返回mock数据
+  if (isMockMode()) {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        // 模拟字典数据
+        const mockData = [
+          {
+            value: 'DICT_DRUG_LEVEL',
+            text: '药材等级',
+            code: 'drug_level',
+            childrens: [
+              { value: 'DIC2022010001', text: '普通', code: '￥PT' },
+              { value: 'DIC2022010002', text: '高级', code: '￥GJ' },
+              { value: 'DIC2022010003', text: '特级', code: '￥TJ' }
+            ]
+          },
+          {
+            value: 'DICT_MEDICATION_METHOD',
+            text: '用药方式',
+            code: 'medication_method',
+            childrens: [
+              { value: 'DIC2022030020', text: '内服', code: '01' },
+              { value: 'DIC2022030021', text: '外用', code: '02' },
+              { value: 'DIC2022030022', text: '含服', code: '03' }
+            ]
+          },
+          {
+            value: 'DICT_PACK_METHOD',
+            text: '包装方式',
+            code: 'pack_method',
+            childrens: [
+              { value: 'DIC2020070002', text: '品牌包装', code: 'brandpack' },
+              { value: 'DIC2020070003', text: '简易包装', code: 'simplepack' },
+              { value: 'DIC2020070004', text: '环保包装', code: 'ecopack' }
+            ]
+          }
+        ]
+
+        resolve({
+          code: 0,
+          data: mockData,
+          message: 'success'
+        })
+      }, 300) // 模拟网络延迟
+    })
+  }
+
+  // 生产环境使用真实接口
+  return request({
+    url: labelApi.getDictionaries,
+    method: 'get',
+    headers: {
+      'access_token': localStorage.getItem('Access-Token')?.replace('Bearer ', '') || ''
+    }
+  }).then(response => {
+    // 适配和药铺接口返回格式
+    if (response.errcode === 0 && response.data) {
+      return {
+        code: 0,
+        data: response.data,
+        message: response.errmsg || 'success'
+      }
+    } else {
+      return {
+        code: response.errcode || 500,
+        data: [],
+        message: response.errmsg || '获取字典数据失败'
+      }
+    }
   })
 }

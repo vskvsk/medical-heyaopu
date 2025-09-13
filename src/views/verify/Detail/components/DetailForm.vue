@@ -40,49 +40,52 @@
           </a-col>
           <a-col :span="6">
             <a-form-item label="年龄">
-              <a-input-number :value="value.patientAge" style="width: 100%" :min="1" @change="handleFormChange($event, 'patientAge')" />
+              <a-input-number
+                :value="value.patientAge"
+                style="width: 100%"
+                :min="1"
+                @change="handleFormChange($event, 'patientAge')"
+              />
             </a-form-item>
           </a-col>
 
           <!-- 第二行：辨病、辩证、治疗思路 -->
           <a-col :span="6">
-            <a-form-item label="辨病" class="disease-form-item">
-              <div class="advice-input-container" @click="showDiseaseModal">
-                <a-input
-                  :value="value.diseaseList && value.diseaseList.length > 0 ? value.diseaseList.map(item => item.name).join(', ') : ''"
-                  placeholder="点击编辑辨病"
-                  read-only
-                />
-              </div>
+            <a-form-item label="辨病">
+              <a-input
+                :value="value.symptom"
+                placeholder="请输入辨病"
+                @input="handleFormChange($event, 'symptom')"
+              />
             </a-form-item>
           </a-col>
           <a-col :span="6">
-            <a-form-item label="辩证" class="disease-form-item">
-              <div class="advice-input-container" @click="showSyndromeModal">
-                <a-input
-                  :value="value.syndromeList && value.syndromeList.length > 0 ? value.syndromeList.map(item => item.name).join(', ') : ''"
-                  placeholder="点击编辑辩证"
-                  read-only
-                />
-              </div>
+            <a-form-item label="辩证">
+              <a-input
+                :value="value.dialectical"
+                placeholder="请输入辩证"
+                @input="handleFormChange($event, 'dialectical')"
+              />
             </a-form-item>
           </a-col>
           <a-col :span="6">
-            <a-form-item label="治疗思路" class="disease-form-item">
-              <div class="advice-input-container" @click="showTreatmentModal">
-                <a-input
-                  :value="value.treatmentList && value.treatmentList.length > 0 ? value.treatmentList.map(item => item.name).join(', ') : ''"
-                  placeholder="点击编辑治疗思路"
-                  read-only
-                />
-              </div>
+            <a-form-item label="治疗思路">
+              <a-input
+                :value="value.trainofthought"
+                placeholder="请输入治疗思路"
+                @input="handleFormChange($event, 'trainofthought')"
+              />
             </a-form-item>
           </a-col>
 
           <!-- 第三行：药方信息 -->
           <a-col :span="6">
             <a-form-item label="处方方案">
-              <a-select :value="value.patientViewPlan" style="width: 100%" @change="handleFormChange($event, 'patientViewPlan')">
+              <a-select
+                :value="value.issecurity"
+                style="width: 100%"
+                @change="handleFormChange($event, 'issecurity')"
+              >
                 <a-select-option v-for="item in patientViewPlanList" :key="item.value" :value="item.value">
                   {{ item.label }}
                 </a-select-option>
@@ -105,9 +108,13 @@
           </a-col>
           <a-col :span="6" v-if="medicationMethodList.length > 0">
             <a-form-item label="服用方式">
-              <a-select :value="value.medicationMethod" style="width: 100%" @change="handleFormChange($event, 'medicationMethod')">
+              <a-select
+                :value="value.medicationMethod"
+                style="width: 100%"
+                @change="handleFormChange($event, 'medicationMethod')"
+              >
                 <a-select-option v-for="item in medicationMethodList" :key="item.value" :value="item.value">
-                  {{ item.label }}
+                  {{ item.text }}
                 </a-select-option>
               </a-select>
             </a-form-item>
@@ -116,22 +123,42 @@
           <!-- 第四行：剂量信息 -->
           <a-col :span="6">
             <a-form-item :label="(dosesTotalObject.left || '共') + (dosesTotalObject.right || '剂')">
-              <a-input-number :value="value.dosesTotal" style="width: 100%" :min="1" @change="handleFormChange($event, 'dosesTotal')" />
+              <a-input-number
+                :value="value.dosesTotal"
+                style="width: 100%"
+                :min="1"
+                @change="handleFormChange($event, 'dosesTotal')"
+              />
             </a-form-item>
           </a-col>
           <a-col :span="6">
-            <a-form-item :label="(dosesDailyObject.left || '每日') + (dosesDailyObject.right || '剂')">
-              <a-input-number :value="value.dosesDaily" style="width: 100%" :min="1" @change="handleFormChange($event, 'dosesDaily')" />
+            <a-form-item :label="(dosesDailyObject.left || '每日') + (dosesDailyObject.right || '次')">
+              <a-input-number
+                :value="value.dosesDaily"
+                style="width: 100%"
+                :min="1"
+                @change="handleFormChange($event, 'dosesDaily')"
+              />
             </a-form-item>
           </a-col>
           <a-col :span="6">
             <a-form-item :label="(dosesEachUseNumObject.left || '每次') + (dosesEachUseNumObject.right || '次')">
-              <a-input-number :value="value.dosesEachUseNum" style="width: 100%" :min="1" @change="handleFormChange($event, 'dosesEachUseNum')" />
+              <a-input-number
+                :value="value.dosesEachUseNum"
+                style="width: 100%"
+                :min="1"
+                @change="handleFormChange($event, 'dosesEachUseNum')"
+              />
             </a-form-item>
           </a-col>
           <a-col :span="6">
             <a-form-item :label="(useDayCountObject.left || '可用') + (useDayCountObject.right || '天')">
-              <a-input-number :value="value.useDayCount" style="width: 100%" :min="1" @change="handleFormChange($event, 'useDayCount')" />
+              <a-input-number
+                :value="value.useDayCount"
+                style="width: 100%"
+                :min="1"
+                @change="handleFormChange($event, 'useDayCount')"
+              />
             </a-form-item>
           </a-col>
 
@@ -139,11 +166,7 @@
           <a-col :span="6">
             <a-form-item label="医嘱说明">
               <div class="advice-input-container" @click="showMedicalAdviceModal">
-                <a-input
-                  :value="value.doctorAdvice"
-                  placeholder="点击编辑医嘱"
-                  read-only
-                />
+                <a-input :value="value.doctorAdvice" placeholder="点击编辑医嘱" read-only />
               </div>
             </a-form-item>
           </a-col>
@@ -153,7 +176,7 @@
             <a-form-item label="包装方式">
               <a-select :value="value.packMethod" style="width: 100%" @change="handleFormChange($event, 'packMethod')">
                 <a-select-option v-for="item in packMethodList" :key="item.value" :value="item.value">
-                  {{ item.label }}
+                  {{ item.text }}
                 </a-select-option>
               </a-select>
             </a-form-item>
@@ -177,7 +200,7 @@
             <a-form-item label="药材等级">
               <a-select :value="value.drugLevel" style="width: 100%" @change="handleFormChange($event, 'drugLevel')">
                 <a-select-option v-for="item in drugLevelList" :key="item.value" :value="item.value">
-                  {{ item.label }}
+                  {{ item.text }}
                 </a-select-option>
               </a-select>
             </a-form-item>
@@ -195,13 +218,7 @@
           </a-col>
           <a-col :span="6">
             <a-form-item label="药材费用">
-              <a-input-number
-                :value="value.priceDrug"
-                style="width: 100%"
-                :min="0"
-                :precision="2"
-                disabled
-              />
+              <a-input-number :value="value.priceDrug" style="width: 100%" :min="0" :precision="2" disabled />
             </a-form-item>
           </a-col>
           <a-col :span="6">
@@ -226,43 +243,14 @@
       @cancel="handleMedicalAdviceCancel"
     />
 
-    <!-- 辨病弹窗 -->
-    <DiseaseModal
-      :visible="diseaseModalVisible"
-      :initialValue="value.diseaseList || []"
-      :preloadedResults="diseasePreloadedResults"
-      @save="handleDiseaseSave"
-      @cancel="handleDiseaseCancel"
-    />
-
-    <!-- 辩证弹窗 -->
-    <SyndromeModal
-      :visible="syndromeModalVisible"
-      :initialValue="value.syndromeList || []"
-      :preloadedResults="syndromePreloadedResults"
-      @save="handleSyndromeSave"
-      @cancel="handleSyndromeCancel"
-    />
-
-    <!-- 治疗思路弹窗 -->
-    <TreatmentModal
-      :visible="treatmentModalVisible"
-      :initialValue="value.treatmentList || []"
-      :dataSource="treatmentDataSource"
-      @save="handleTreatmentSave"
-      @cancel="handleTreatmentCancel"
-    />
   </a-card>
 </template>
 
 <script>
 import { TreeSelect } from 'ant-design-vue'
-import { getPatientViewPlanDict, getDosageFormsData, getPackingSizeList } from '@/api/annotation'
+import { getDosageFormsData } from '@/api/annotation'
 import SearchableTagInput from './SearchableTagInput'
 import MedicalAdviceModal from './MedicalAdviceModal'
-import DiseaseModal from './DiseaseModal'
-import SyndromeModal from './SyndromeModal'
-import TreatmentModal from './TreatmentModal'
 
 // 导出手机号验证函数供其他组件使用
 export const validatePhoneNumber = (phone) => {
@@ -284,15 +272,16 @@ export default {
     syndromePreloadedResults: {
       type: Array,
       default: () => []
+    },
+    dictionaries: {
+      type: Array,
+      default: () => []
     }
   },
   components: {
     'a-tree-select': TreeSelect,
     SearchableTagInput,
-    MedicalAdviceModal,
-    DiseaseModal,
-    SyndromeModal,
-    TreatmentModal
+    MedicalAdviceModal
   },
   data () {
     return {
@@ -302,30 +291,40 @@ export default {
       packMethodList: [], // 包装方式列表
       packingSizeList: [], // 包装规格列表
       loadingPackingSizes: false, // 包装规格加载状态
-      dosesTotalObject: {}, // 共多少剂对象
-      dosesDailyObject: {}, // 每日多少剂对象
-      dosesEachUseNumObject: {}, // 一剂服几次对象
-      useDayCountObject: {}, // 可用天数对象
+      dosesTotalObject: { left: '共', value: 1, right: '剂' }, // 共多少剂对象
+      dosesDailyObject: { left: '每日', value: 1, right: '次' }, // 每日多少剂对象
+      dosesEachUseNumObject: { left: '每次', value: 1, right: '次' }, // 一剂服几次对象
+      useDayCountObject: { left: '共', value: 1, right: '包' }, // 可用天数对象
       isAccessories: false, // 是否为膏方
       accessoriesList: [], // 辅料列表
       searchValue: '',
       phoneError: false,
       // 治疗思路数据源
       treatmentDataSource: [],
-      // 查看方案列表
-      patientViewPlanList: [],
+      // 查看方案列表 - 更新为处方方案映射
+      patientViewPlanList: [
+        {
+          id: 1501,
+          label: '购药前药材和克数都不可见',
+          value: '3',
+          dictType: 'patient_view_plan'
+        },
+        {
+          id: 1553,
+          label: '购药前后都不可见',
+          value: '4',
+          dictType: 'patient_view_plan'
+        }
+      ],
       // 验证状态
       errors: {
-        diseaseList: false,
-        syndromeList: false,
-        treatmentList: false,
-        patientViewPlan: false
+        symptom: false,
+        dialectical: false,
+        trainofthought: false,
+        issecurity: false
       },
       // 弹窗显示状态
-      medicalAdviceModalVisible: false,
-      diseaseModalVisible: false,
-      syndromeModalVisible: false,
-      treatmentModalVisible: false
+      medicalAdviceModalVisible: false
     }
   },
   computed: {
@@ -334,16 +333,24 @@ export default {
     }
   },
   created () {
-    this.fetchPatientViewPlanList()
     this.fetchDosageFormsData()
   },
   watch: {
     'value.packMethod': {
       handler (newValue) {
-        if (newValue) {
-          this.fetchPackingSizeList(newValue)
+        console.log('包装方式改变:', newValue)
+
+        if (newValue && this.dictionaries.length > 0) {
+          // 根据包装方式的value值，在字典中找到对应的包装规格
+          this.updatePackingSizeList(newValue)
         } else {
+          // 清空包装规格选择
           this.packingSizeList = []
+          const newFormValue = {
+            ...this.value,
+            packingSize: ''
+          }
+          this.$emit('input', newFormValue)
         }
       }
     },
@@ -365,7 +372,7 @@ export default {
 
             // 查找子节点
             if (parentItem.children) {
-              const childItem = parentItem.children.find(child => child.value === newValue)
+              const childItem = parentItem.children.find((child) => child.value === newValue)
               if (childItem) {
                 selectedDosageForm = childItem
                 break
@@ -378,12 +385,15 @@ export default {
           if (selectedDosageForm) {
             // 更新药材等级列表
             this.drugLevelList = selectedDosageForm.drugLevelList || []
+            console.log('药材等级列表:', this.drugLevelList)
 
             // 更新用药方法列表
             this.medicationMethodList = selectedDosageForm.medicationMethodList || []
+            console.log('用药方法列表:', this.medicationMethodList)
 
             // 更新包装方式列表
             this.packMethodList = selectedDosageForm.packMethodList || []
+            console.log('包装方式列表:', this.packMethodList)
 
             // 每次切换开方剂型时，先清空包装方式和包装规格
             const newValue = {
@@ -394,11 +404,31 @@ export default {
             this.$emit('input', newValue)
             this.packingSizeList = []
 
-            // 更新剂量相关对象
-            this.dosesTotalObject = selectedDosageForm.dosesTotalObject || { left: '共', value: 1, right: '剂' }
-            this.dosesDailyObject = selectedDosageForm.dosesDailyObject || { left: '每日', value: 1, right: '剂' }
-            this.dosesEachUseNumObject = selectedDosageForm.dosesEachUseNumObject || { left: '每次', value: 1, right: '次' }
-            this.useDayCountObject = selectedDosageForm.useDayCountObject || { left: '可用', value: 1, right: '天' }
+            // 更新剂量相关对象，使用$set确保响应式更新
+            this.$set(
+              this,
+              'dosesTotalObject',
+              selectedDosageForm.dosesTotalObject || { left: '共', value: 1, right: '剂' }
+            )
+            this.$set(
+              this,
+              'dosesDailyObject',
+              selectedDosageForm.dosesDailyObject || { left: '每日', value: 1, right: '次' }
+            )
+            this.$set(
+              this,
+              'dosesEachUseNumObject',
+              selectedDosageForm.dosesEachUseNumObject || {
+                left: '每次',
+                value: 1,
+                right: '次'
+              }
+            )
+            this.$set(
+              this,
+              'useDayCountObject',
+              selectedDosageForm.useDayCountObject || { left: '共', value: 1, right: '包' }
+            )
 
             // 更新是否为膏方标志
             this.isAccessories = selectedDosageForm.isAccessories || false
@@ -408,21 +438,47 @@ export default {
 
             // 如果是膏方，设置辅料列表（即使不显示在UI上，也需要传递给API）
             if (this.isAccessories && this.accessoriesList.length > 0) {
-              this.handleFormChange(this.accessoriesList.map(item => item.value), 'accessoriesList')
+              this.handleFormChange(
+                this.accessoriesList.map((item) => item.value),
+                'accessoriesList'
+              )
             }
 
             // 更新表单默认值
-            if (this.drugLevelList.length > 0 &&
-                (!this.value.drugLevel ||
-                 !this.drugLevelList.find(item => item.value === this.value.drugLevel))) {
-              this.handleFormChange(this.drugLevelList[0].value, 'drugLevel')
+            // 设置药材等级默认值
+            if (this.drugLevelList.length > 0) {
+              // 优先使用接口返回的默认值，如果没有或当前值不在列表中，则使用第一个
+              const defaultLevel = selectedDosageForm.defaultDrugLevel || this.drugLevelList[0].value
+              if (!this.value.drugLevel || !this.drugLevelList.find((item) => item.value === this.value.drugLevel)) {
+                this.handleFormChange(defaultLevel, 'drugLevel')
+              }
             }
+
+            // 设置用药方式默认值
+            if (this.medicationMethodList.length > 0) {
+              const defaultMethod = selectedDosageForm.defaultMedicationMethod || this.medicationMethodList[0].value
+              if (
+                !this.value.medicationMethod ||
+                !this.medicationMethodList.find((item) => item.value === this.value.medicationMethod)
+              ) {
+                this.handleFormChange(defaultMethod, 'medicationMethod')
+              }
+            }
+
             console.log(this.dosesTotalObject, 'this.dosesTotalObject==>')
             // 更新剂量默认值，确保值不为0或undefined
-            const dosesTotal = (this.dosesTotalObject && typeof this.dosesTotalObject.value === 'number') ? this.dosesTotalObject.value : 1
-            const dosesDaily = (this.dosesDailyObject && typeof this.dosesDailyObject.value === 'number') ? this.dosesDailyObject.value : 1
-            const dosesEachUseNum = (this.dosesEachUseNumObject && typeof this.dosesEachUseNumObject.value === 'number') ? this.dosesEachUseNumObject.value : 1
-            const useDayCount = (this.useDayCountObject && typeof this.useDayCountObject.value === 'number') ? this.useDayCountObject.value : 1
+            const dosesTotal =
+              this.dosesTotalObject && typeof this.dosesTotalObject.value === 'number' ? this.dosesTotalObject.value : 1
+            const dosesDaily =
+              this.dosesDailyObject && typeof this.dosesDailyObject.value === 'number' ? this.dosesDailyObject.value : 1
+            const dosesEachUseNum =
+              this.dosesEachUseNumObject && typeof this.dosesEachUseNumObject.value === 'number'
+                ? this.dosesEachUseNumObject.value
+                : 1
+            const useDayCount =
+              this.useDayCountObject && typeof this.useDayCountObject.value === 'number'
+                ? this.useDayCountObject.value
+                : 1
 
             console.log('设置剂量值:', { dosesTotal, dosesDaily, dosesEachUseNum, useDayCount })
 
@@ -442,18 +498,41 @@ export default {
 
               // 在下一个tick中处理包装方式的默认选择
               this.$nextTick(() => {
-                // 如果有包装方式列表，设置默认值为第一个
+                // 如果有包装方式列表，设置默认值
                 if (this.packMethodList.length > 0) {
-                  console.log('设置默认包装方式:', this.packMethodList[0].value)
-                  this.handleFormChange(this.packMethodList[0].value, 'packMethod')
+                  const defaultPackMethod = selectedDosageForm.defaultPackMethod || this.packMethodList[0].value
+                  console.log('设置默认包装方式:', defaultPackMethod)
+                  console.log('可用包装方式列表:', this.packMethodList)
+                  this.handleFormChange(defaultPackMethod, 'packMethod')
+                } else {
+                  console.log('没有可用的包装方式选项')
+                }
+
+                // 设置药材等级默认值
+                if (this.drugLevelList.length > 0) {
+                  const defaultDrugLevel = selectedDosageForm.defaultDrugLevel || this.drugLevelList[0].value
+                  console.log('设置默认药材等级:', defaultDrugLevel)
+                  console.log('可用药材等级列表:', this.drugLevelList)
+                  if (!this.value.drugLevel || !this.drugLevelList.find(item => item.value === this.value.drugLevel)) {
+                    this.handleFormChange(defaultDrugLevel, 'drugLevel')
+                  }
+                } else {
+                  console.log('没有可用的药材等级选项')
+                }
+
+                // 设置用药方式默认值
+                if (this.medicationMethodList.length > 0) {
+                  const defaultMedicationMethod = selectedDosageForm.defaultMedicationMethod || this.medicationMethodList[0].value
+                  console.log('设置默认用药方式:', defaultMedicationMethod)
+                  console.log('可用用药方式列表:', this.medicationMethodList)
+                  if (!this.value.medicationMethod || !this.medicationMethodList.find(item => item.value === this.value.medicationMethod)) {
+                    this.handleFormChange(defaultMedicationMethod, 'medicationMethod')
+                  }
+                } else {
+                  console.log('没有可用的用药方式选项')
                 }
               })
             })
-
-            // 如果有用药方法，设置默认值
-            if (this.medicationMethodList.length > 0 && !this.value.medicationMethod) {
-              this.handleFormChange(this.medicationMethodList[0].value, 'medicationMethod')
-            }
           }
         }
       },
@@ -461,6 +540,59 @@ export default {
     }
   },
   methods: {
+    // 根据包装方式更新包装规格列表
+    updatePackingSizeList (packMethodValue) {
+      console.log('开始更新包装规格列表，包装方式值:', packMethodValue)
+      console.log('当前字典数据:', this.dictionaries)
+
+      // 1. 首先在包装方式字典中找到对应的包装方式项
+      const packMethodDict = this.dictionaries.find(dict => dict.code === 'Packmethod')
+      if (!packMethodDict || !packMethodDict.childrens) {
+        console.log('未找到包装方式字典')
+        this.packingSizeList = []
+        return
+      }
+
+      // 2. 在包装方式的childrens中找到选中的包装方式
+      const selectedPackMethod = packMethodDict.childrens.find(item => item.value === packMethodValue)
+      if (!selectedPackMethod) {
+        console.log('未找到选中的包装方式:', packMethodValue)
+        this.packingSizeList = []
+        return
+      }
+
+      console.log('找到选中的包装方式:', selectedPackMethod)
+
+      // 3. 使用包装方式的code去找对应的包装规格字典
+      const packSizeDict = this.dictionaries.find(dict => dict.code === selectedPackMethod.code)
+      if (!packSizeDict || !packSizeDict.childrens) {
+        console.log('未找到对应的包装规格字典，code:', selectedPackMethod.code)
+        this.packingSizeList = []
+        return
+      }
+
+      console.log('找到包装规格字典:', packSizeDict)
+
+      // 4. 设置包装规格列表
+      this.packingSizeList = packSizeDict.childrens.map(item => ({
+        value: item.value,
+        label: item.text,
+        code: item.code
+      }))
+
+      console.log('更新后的包装规格列表:', this.packingSizeList)
+
+      // 5. 自动选择第一个包装规格
+      if (this.packingSizeList.length > 0) {
+        const defaultPackingSize = this.packingSizeList[0].value
+        console.log('自动选择第一个包装规格:', defaultPackingSize)
+        this.handleFormChange(defaultPackingSize, 'packingSize')
+      } else {
+        // 清空包装规格选择
+        this.handleFormChange('', 'packingSize')
+      }
+    },
+
     handleFormChange (event, field) {
       const newValue = { ...this.value }
       if (event && event.target) {
@@ -485,136 +617,48 @@ export default {
     },
 
     // 验证辨病字段
-    validateDiseaseList () {
-      const isEmpty = !this.value.diseaseList || this.value.diseaseList.length === 0
-      this.errors.diseaseList = isEmpty
+    validateSymptom () {
+      const isEmpty = !this.value.symptom || this.value.symptom.trim() === ''
+      this.errors.symptom = isEmpty
       return !isEmpty
     },
 
     // 验证辩证字段
-    validateSyndromeList () {
-      const isEmpty = !this.value.syndromeList || this.value.syndromeList.length === 0
-      this.errors.syndromeList = isEmpty
+    validateDialectical () {
+      const isEmpty = !this.value.dialectical || this.value.dialectical.trim() === ''
+      this.errors.dialectical = isEmpty
       return !isEmpty
     },
 
     // 验证治疗思路字段
-    validateTreatmentList () {
-      const isEmpty = !this.value.treatmentList || this.value.treatmentList.length === 0
-      this.errors.treatmentList = isEmpty
+    validateTrainofthought () {
+      const isEmpty = !this.value.trainofthought || this.value.trainofthought.trim() === ''
+      this.errors.trainofthought = isEmpty
       return !isEmpty
     },
 
-    // 验证查看方案字段
-    validatePatientViewPlan () {
-      const isEmpty = !this.value.patientViewPlan
-      this.errors.patientViewPlan = isEmpty
+    // 验证处方方案字段
+    validateIssecurity () {
+      const isEmpty = !this.value.issecurity
+      this.errors.issecurity = isEmpty
       return !isEmpty
     },
 
     // 验证所有必填字段
     validateRequiredFields () {
-      const diseaseValid = this.validateDiseaseList()
-      const syndromeValid = this.validateSyndromeList()
-      const treatmentValid = this.validateTreatmentList()
-      const viewPlanValid = this.validatePatientViewPlan()
+      const symptomValid = this.validateSymptom()
+      const dialecticalValid = this.validateDialectical()
+      const trainofthoughtValid = this.validateTrainofthought()
+      const issecurityValid = this.validateIssecurity()
 
-      const isValid = diseaseValid && syndromeValid && treatmentValid && viewPlanValid
+      const isValid = symptomValid && dialecticalValid && trainofthoughtValid && issecurityValid
 
       if (!isValid) {
         // 显示错误提示
-        this.$message.error('请填写所有必填字段：辨病、辩证、治疗思路、查看方案')
+        this.$message.error('请填写所有必填字段：辨病、辩证、治疗思路、处方方案')
       }
 
       return isValid
-    },
-
-    // 获取查看方案列表
-    async fetchPatientViewPlanList () {
-      try {
-        const res = await getPatientViewPlanDict()
-        console.log('查看方案列表', res)
-        if (res.code === 0) {
-          this.patientViewPlanList = res.data
-        }
-      } catch (error) {
-        console.error('获取查看方案列表失败:', error)
-      }
-    },
-
-    // 处理辩病变更
-    handleDiseaseChange (tags) {
-      const newValue = { ...this.value }
-      newValue.diseaseList = tags
-      this.$emit('input', newValue)
-    },
-
-    // 处理辩证变更
-    handleSyndromeChange (tags) {
-      const newValue = { ...this.value }
-      newValue.syndromeList = tags
-      this.$emit('input', newValue)
-    },
-
-    // 处理治疗思路变更
-    handleTreatmentChange (tags) {
-      const newValue = { ...this.value }
-      newValue.treatmentList = tags
-      this.$emit('input', newValue)
-    },
-
-    // 显示辨病弹窗
-    showDiseaseModal () {
-      this.diseaseModalVisible = true
-    },
-
-    // 处理辨病保存
-    handleDiseaseSave (tags) {
-      const newValue = { ...this.value }
-      newValue.diseaseList = tags
-      this.$emit('input', newValue)
-      this.diseaseModalVisible = false
-    },
-
-    // 处理辨病取消
-    handleDiseaseCancel () {
-      this.diseaseModalVisible = false
-    },
-
-    // 显示辩证弹窗
-    showSyndromeModal () {
-      this.syndromeModalVisible = true
-    },
-
-    // 处理辩证保存
-    handleSyndromeSave (tags) {
-      const newValue = { ...this.value }
-      newValue.syndromeList = tags
-      this.$emit('input', newValue)
-      this.syndromeModalVisible = false
-    },
-
-    // 处理辩证取消
-    handleSyndromeCancel () {
-      this.syndromeModalVisible = false
-    },
-
-    // 显示治疗思路弹窗
-    showTreatmentModal () {
-      this.treatmentModalVisible = true
-    },
-
-    // 处理治疗思路保存
-    handleTreatmentSave (tags) {
-      const newValue = { ...this.value }
-      newValue.treatmentList = tags
-      this.$emit('input', newValue)
-      this.treatmentModalVisible = false
-    },
-
-    // 处理治疗思路取消
-    handleTreatmentCancel () {
-      this.treatmentModalVisible = false
     },
 
     // 显示医嘱弹窗
@@ -635,69 +679,111 @@ export default {
       this.medicalAdviceModalVisible = false
     },
 
-    // 获取包装规格列表
-    async fetchPackingSizeList (packMethod) {
-      if (!packMethod) return
-
-      this.loadingPackingSizes = true
-      try {
-        const res = await getPackingSizeList(packMethod)
-        console.log('包装规格列表:', res)
-        if (res.code === 0 && res.data) {
-          this.packingSizeList = res.data
-
-          // 每次修改包装方式，都将包装规格设置为第一个选项
-          if (this.packingSizeList.length > 0) {
-            // 无论之前是否有选中值，都选择第一个选项
-            this.handleFormChange(this.packingSizeList[0].value, 'packingSize')
-            console.log('自动选中第一个包装规格:', this.packingSizeList[0].value)
-          } else {
-            // 如果列表为空，清空当前选中的包装规格
-            this.handleFormChange('', 'packingSize')
-          }
-        }
-      } catch (error) {
-        console.error('获取包装规格列表失败:', error)
-      } finally {
-        this.loadingPackingSizes = false
-      }
-    },
-
     // 获取药剂类型数据
     async fetchDosageFormsData () {
       try {
         const res = await getDosageFormsData()
         console.log('药剂类型数据:', res)
+        console.log('原始数据第一项:', res.data && res.data[0])
         if (res.code === 0 && res.data) {
           // 处理药剂类型数据
           if (res.data && res.data.length > 0) {
-            // 转换为树形结构
-            this.dosageFormsTree = res.data.map(item => {
+            // 转换为树形结构，适配新的接口数据格式
+            this.dosageFormsTree = res.data.map((item) => {
+              console.log('处理药剂类型数据:', item.dt_name, {
+                drug_level_combox: item.drug_level_combox,
+                drug_mmode_combox: item.drug_mmode_combox,
+                dt_packmethod_combox: item.dt_packmethod_combox
+              })
               return {
-                value: item.dosageForms,
-                title: item.dosageFormsName,
-                key: item.dosageForms,
-                isLeaf: !item.childList || item.childList.length === 0,
-                children: item.childList ? item.childList.map(child => ({
-                  value: child.dosageForms,
-                  title: child.dosageFormsName,
-                  key: child.dosageForms,
-                  isLeaf: true,
-                  // 保存子项的所有数据，以便在选择时使用
-                  drugLevelList: child.drugLevelList || [],
-                  medicationMethodList: child.medicationMethodList || [],
-                  packMethodList: child.packMethodList || [],
-                  // 确保剂量相关对象有默认值
-                  dosesTotalObject: child.dosesTotalObject || { left: '共', value: 1, right: '剂' },
-                  dosesDailyObject: child.dosesDailyObject || { left: '每日', value: 1, right: '剂' },
-                  dosesEachUseNumObject: child.dosesEachUseNumObject || { left: '每次', value: 1, right: '次' },
-                  useDayCountObject: child.useDayCountObject || { left: '可用', value: 1, right: '天' },
-                  remarks: child.remarks,
-                  isAccessories: child.isAccessories,
-                  accessoriesList: child.accessoriesList || []
-                })) : []
+                value: item.pk_drugtypes,
+                title: item.dt_name,
+                key: item.pk_drugtypes,
+                isLeaf: !item.childrens || item.childrens.length === 0,
+                // 保存完整的药剂类型数据
+                drugLevelList: item.drug_level_combox || [],
+                medicationMethodList: item.drug_mmode_combox || [],
+                packMethodList: item.dt_packmethod_combox || [],
+                // 剂量相关对象，使用新接口的字段
+                dosesTotalObject: {
+                  left: item.tally1_left || '共',
+                  value: item.tally1_value || 1,
+                  right: item.tally1_right || '剂'
+                },
+                dosesDailyObject: {
+                  left: item.tally2_left || '每日',
+                  value: item.tally2_value || 1,
+                  right: item.tally2_right || '次'
+                },
+                dosesEachUseNumObject: {
+                  left: item.tally4_left || '每次',
+                  value: item.tally4_value || 1,
+                  right: item.tally4_right || '包'
+                },
+                useDayCountObject: {
+                  left: item.tally3_left || '共',
+                  value: item.tally3_value || 1,
+                  right: item.tally3_right || '包'
+                },
+                remarks: item.dt_remarks || '',
+                isAccessories: item.dt_isaccessories === 1,
+                isHalf: item.dt_ishalf === 1,
+                isExcess: item.dt_isexcess === 1,
+                tallyDescription: item.tally_description || '',
+                // 默认选项
+                defaultDrugLevel: item.drug_level,
+                defaultMedicationMethod: item.drug_mmode,
+                defaultPackMethod: item.dt_packmethod,
+                children: item.childrens
+                  ? item.childrens.map((child) => {
+                      console.log('处理子项数据:', child.dt_name, {
+                        drug_level_combox: child.drug_level_combox,
+                        drug_mmode_combox: child.drug_mmode_combox,
+                        dt_packmethod_combox: child.dt_packmethod_combox
+                      })
+                      return {
+                        value: child.pk_drugtypes,
+                        title: child.dt_name,
+                        key: child.pk_drugtypes,
+                        isLeaf: true,
+                        // 子项的完整数据
+                        drugLevelList: child.drug_level_combox || [],
+                        medicationMethodList: child.drug_mmode_combox || [],
+                        packMethodList: child.dt_packmethod_combox || [],
+                        dosesTotalObject: {
+                          left: child.tally1_left || '共',
+                          value: child.tally1_value || 1,
+                          right: child.tally1_right || '剂'
+                        },
+                        dosesDailyObject: {
+                          left: child.tally2_left || '每日',
+                          value: child.tally2_value || 1,
+                          right: child.tally2_right || '次'
+                        },
+                        dosesEachUseNumObject: {
+                          left: child.tally4_left || '每次',
+                          value: child.tally4_value || 1,
+                          right: child.tally4_right || '包'
+                        },
+                        useDayCountObject: {
+                          left: child.tally3_left || '共',
+                          value: child.tally3_value || 1,
+                          right: child.tally3_right || '包'
+                        },
+                        remarks: child.dt_remarks || '',
+                        isAccessories: child.dt_isaccessories === 1,
+                        isHalf: child.dt_ishalf === 1,
+                        isExcess: child.dt_isexcess === 1,
+                        tallyDescription: child.tally_description || '',
+                        defaultDrugLevel: child.drug_level,
+                        defaultMedicationMethod: child.drug_mmode,
+                        defaultPackMethod: child.dt_packmethod
+                      }
+                    })
+                  : []
               }
             })
+            console.log(this.dosageFormsTree, 'dosageFormsTree')
 
             // 如果当前有选中的药剂类型，触发watch更新相关数据
             if (this.value.dosageForms) {
@@ -709,11 +795,13 @@ export default {
                   handler.call(this, this.value.dosageForms)
                 }, 0)
               })
-            } else if (this.dosageFormsTree.length > 0 &&
-                      this.dosageFormsTree[0].children &&
-                      this.dosageFormsTree[0].children.length > 0) {
-              // 如果没有选中的药剂类型，选择第一个子项
-              this.handleFormChange(this.dosageFormsTree[0].children[0].value, 'dosageForms')
+            } else if (this.dosageFormsTree.length > 0) {
+              // 如果没有选中的药剂类型，选择第一个项目
+              // 如果有子项，选择第一个子项；否则选择父项
+              const firstItem = this.dosageFormsTree[0]
+              const defaultValue =
+                firstItem.children && firstItem.children.length > 0 ? firstItem.children[0].value : firstItem.value
+              this.handleFormChange(defaultValue, 'dosageForms')
             }
           }
         }
