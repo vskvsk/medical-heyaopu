@@ -1,184 +1,227 @@
 <template>
   <div>
-    <div class="table-header">
-      <div class="tabs-wrapper">
-        <a-tabs
-          :activeKey="activeLabel"
-          @change="handleTabChange"
+    <div class="content-wrapper">
+      <!-- 药剂药量表格 -->
+      <a-card title="药剂药量" style="margin-bottom: 16px">
+        <a-table
+          :columns="medicineColumns"
+          :dataSource="detail.usageDrugs"
+          :pagination="false"
+          :loading="loading"
+          :scroll="{ x: 1000 }"
         >
-          <a-tab-pane
-            v-for="label in labelConfigs"
-            :key="label.value"
-            :tab="`${label.value} ${label.list.length>0 ? label.list.length :''}`"
+          <template v-for="col in ['area', 'medicineCode', 'content', 'quantity', 'unit', 'retailPrice', 'conversionRate','drugProcessing', 'processMethod']" :slot="col" slot-scope="text, record">
+            <a-form-item
+              v-if="col === 'content'"
+              :key="col"
+              :validate-status="getValidateStatus(record, 'content')"
+              :help="getValidateHelp(record, 'content')"
+              style="margin-bottom: 0"
+            >
+              <a-input
+                :value="text"
+                :placeholder="medicineColumns.find(c => c.dataIndex === col).title"
+                @change="e => handleChange(e.target.value, record.key, col)"
+              />
+            </a-form-item>
+
+            <a-form-item
+              v-else-if="col === 'quantity'"
+              :key="col"
+              :validate-status="getValidateStatus(record, 'quantity')"
+              :help="getValidateHelp(record, 'quantity')"
+              style="margin-bottom: 0"
+            >
+              <a-input-number
+                :value="text"
+                style="width: 100%"
+                :placeholder="medicineColumns.find(c => c.dataIndex === col).title"
+                @change="value => handleChange(value, record.key, col)"
+                :min="0"
+              />
+            </a-form-item>
+
+            <template v-else-if="col === 'retailPrice' || col === 'conversionRate'">
+              <a-input
+                :key="col"
+                style="margin: -5px 0"
+                :value="text"
+                :placeholder="medicineColumns.find(c => c.dataIndex === col).title"
+                :disabled="true"
+              />
+            </template>
+            <a-input
+              v-else
+              :key="col"
+              style="margin: -5px 0"
+              :value="text"
+              :placeholder="medicineColumns.find(c => c.dataIndex === col).title"
+              @change="e => handleChange(e.target.value, record.key, col)"
+            />
+          </template>
+          <template slot="drugProcessing" slot-scope="text, record">
+            <a-select
+              style="margin: -5px 0; width: 100%"
+              :value="text"
+              @change="value => handleChange(value, record.key, 'drugProcessing')"
+              allowClear
+              placeholder="请选择加工工艺"
+              :defaultValue="record.drugProcessing"
+            >
+              <a-select-option v-for="method in drugProcessingList" :key="method.id" :value="method.id">
+                {{ method.label }}
+              </a-select-option>
+            </a-select>
+          </template>
+          <template slot="medicineCode" slot-scope="text, record">
+            <template>
+              <a-form-item
+                :validate-status="getValidateStatus(record, 'medicineCode')"
+                :help="getValidateHelp(record, 'medicineCode')"
+                style="margin-bottom: 0"
+              >
+                <a-select
+                  show-search
+                  style="width: 120px"
+                  :value="record.medicineName"
+                  placeholder="请输入搜索药材"
+                  :filter-option="false"
+                  :not-found-content="searching ? undefined : (!searching && searchResults.length === 0 ? '暂无数据' : null)"
+                  allowClear
+                  @search="debounceSearch"
+                  @change="value => handlemedicineCodeChange(value, record)"
+                  @focus="() => handleSelectFocus(record)"
+                >
+                  <a-select-option v-for="item in searchResults" :key="item.code" :value="item.code">
+                    {{ item.name }} ({{ item.code }})
+                  </a-select-option>
+                </a-select>
+              </a-form-item>
+            </template>
+          </template>
+          <template slot="area" slot-scope="text, record">
+            <template v-if="record.labelId">
+              <a-button
+                type="link"
+                size="small"
+                icon="environment"
+                @click="handleAreaClick(record)"
+              >
+                {{ text }}
+              </a-button>
+            </template>
+            <template v-else>
+              <a-button
+                type="dashed"
+                size="small"
+                icon="plus"
+                @click="handleAddAnnotation(record)"
+              >
+                添加标注
+              </a-button>
+            </template>
+          </template>
+          <template slot="operation" slot-scope="text, record">
+            <a-popconfirm title="是否要删除此行？" @confirm="remove(record.key)">
+              <a>删除</a>
+            </a-popconfirm>
+          </template>
+        </a-table>
+        <div style="display: flex; gap: 16px; margin-top: 16px; margin-bottom: 8px">
+          <a-button
+            style="flex: 1"
+            type="dashed"
+            icon="plus"
+            @click="newMedicine"
           >
-            <a-card>
-              <template v-if="label.value === '药剂药量'">
-                <a-table
-                  :columns="medicineColumns"
-                  :dataSource="detail.usageDrugs"
-                  :pagination="false"
-                  :loading="loading"
-                  :scroll="{ x: 1000 }"
-                >
-                  <template v-for="col in ['area', 'medicineCode', 'content', 'quantity', 'unit', 'retailPrice', 'conversionRate','drugProcessing', 'processMethod']" :slot="col" slot-scope="text, record">
-                    <a-form-item
-                      v-if="col === 'content'"
-                      :key="col"
-                      :validate-status="getValidateStatus(record, 'content')"
-                      :help="getValidateHelp(record, 'content')"
-                      style="margin-bottom: 0"
-                    >
-                      <a-input
-                        :value="text"
-                        :placeholder="medicineColumns.find(c => c.dataIndex === col).title"
-                        @change="e => handleChange(e.target.value, record.key, col)"
-                      />
-                    </a-form-item>
+            添加
+          </a-button>
+        </div>
+      </a-card>
 
-                    <a-form-item
-                      v-else-if="col === 'quantity'"
-                      :key="col"
-                      :validate-status="getValidateStatus(record, 'quantity')"
-                      :help="getValidateHelp(record, 'quantity')"
-                      style="margin-bottom: 0"
-                    >
-                      <a-input-number
-                        :value="text"
-                        style="width: 100%"
-                        :placeholder="medicineColumns.find(c => c.dataIndex === col).title"
-                        @change="value => handleChange(value, record.key, col)"
-                        :min="0"
-                      />
-                    </a-form-item>
+      <!-- 煎制方法表格 -->
+      <a-card title="煎制方法" style="margin-bottom: 16px" v-if="brewingMethodList.length > 0">
+        <a-table
+          :columns="annotationColumns"
+          :dataSource="brewingMethodList"
+          :pagination="false"
+        >
+          <template slot="area" slot-scope="text, record">
+            <a-button
+              type="link"
+              size="small"
+              icon="environment"
+              @click="handleAreaClick(record)"
+            >
+              {{ text }}
+            </a-button>
+          </template>
+          <template slot="content" slot-scope="text, record">
+            <a-textarea
+              v-model="record.content"
+              :placeholder="'请输入煎制方法'"
+              :auto-size="{ minRows: 2, maxRows: 4 }"
+              @change="handleContentChange($event.target.value, record)"
+            />
+          </template>
+        </a-table>
+      </a-card>
 
-                    <template v-else-if="col === 'retailPrice' || col === 'conversionRate'">
-                      <a-input
-                        :key="col"
-                        style="margin: -5px 0"
-                        :value="text"
-                        :placeholder="medicineColumns.find(c => c.dataIndex === col).title"
-                        :disabled="true"
-                      />
-                    </template>
-                    <a-input
-                      v-else
-                      :key="col"
-                      style="margin: -5px 0"
-                      :value="text"
-                      :placeholder="medicineColumns.find(c => c.dataIndex === col).title"
-                      @change="e => handleChange(e.target.value, record.key, col)"
-                    />
-                  </template>
-                  <template slot="drugProcessing" slot-scope="text, record">
-                    <a-select
-                      style="margin: -5px 0; width: 100%"
-                      :value="text"
-                      @change="value => handleChange(value, record.key, 'drugProcessing')"
-                      allowClear
-                      placeholder="请选择加工工艺"
-                      :defaultValue="record.drugProcessing"
-                    >
-                      <a-select-option v-for="method in drugProcessingList" :key="method.id" :value="method.id">
-                        {{ method.label }}
-                      </a-select-option>
-                    </a-select>
-                  </template>
-                  <template slot="medicineCode" slot-scope="text, record">
-                    <template>
-                      <a-form-item
-                        :validate-status="getValidateStatus(record, 'medicineCode')"
-                        :help="getValidateHelp(record, 'medicineCode')"
-                        style="margin-bottom: 0"
-                      >
-                        <a-select
-                          show-search
-                          style="width: 120px"
-                          :value="record.medicineName"
-                          placeholder="请输入搜索药材"
-                          :filter-option="false"
-                          :not-found-content="searching ? undefined : (!searching && searchResults.length === 0 ? '暂无数据' : null)"
-                          allowClear
-                          @search="debounceSearch"
-                          @change="value => handlemedicineCodeChange(value, record)"
-                          @focus="() => handleSelectFocus(record)"
-                        >
-                          <a-select-option v-for="item in searchResults" :key="item.code" :value="item.code">
-                            {{ item.name }} ({{ item.code }})
-                          </a-select-option>
-                        </a-select>
-                      </a-form-item>
-                    </template>
-                  </template>
-                  <template slot="area" slot-scope="text, record">
-                    <template v-if="record.labelId">
-                      <a-button
-                        type="link"
-                        size="small"
-                        icon="environment"
-                        @click="handleAreaClick(record)"
-                      >
-                        {{ text }}
-                      </a-button>
-                    </template>
-                    <template v-else>
-                      <a-button
-                        type="dashed"
-                        size="small"
-                        icon="plus"
-                        @click="handleAddAnnotation(record)"
-                      >
-                        添加标注
-                      </a-button>
-                    </template>
-                  </template>
-                  <template slot="operation" slot-scope="text, record">
-                    <a-popconfirm title="是否要删除此行？" @confirm="remove(record.key)">
-                      <a>删除</a>
-                    </a-popconfirm>
-                  </template>
-                </a-table>
-                <div style="display: flex; gap: 16px; margin-top: 16px; margin-bottom: 8px">
-                  <a-button
-                    style="flex: 1"
-                    type="dashed"
-                    icon="plus"
-                    @click="newMedicine"
-                  >
-                    添加
-                  </a-button>
-                </div>
-              </template>
-              <template v-else>
-                <a-table
-                  :columns="annotationColumns"
-                  :dataSource="label.list"
-                  :pagination="false"
-                >
-                  <template slot="area" slot-scope="text, record">
-                    <a-button
-                      type="link"
-                      size="small"
-                      icon="environment"
-                      @click="handleAreaClick(record)"
-                    >
-                      {{ text }}
-                    </a-button>
-                  </template>
-                  <template slot="content" slot-scope="text, record">
-                    <a-textarea
-                      v-model="record.content"
-                      :placeholder="'请输入内容'"
-                      :auto-size="{ minRows: 2, maxRows: 4 }"
-                      @change="handleContentChange($event.target.value, record)"
-                    />
-                  </template>
-                </a-table>
-              </template>
-            </a-card>
-          </a-tab-pane>
-        </a-tabs>
-      </div>
+      <!-- 医嘱表格 -->
+      <a-card title="医嘱" style="margin-bottom: 16px" v-if="doctorAdviceList.length > 0">
+        <a-table
+          :columns="annotationColumns"
+          :dataSource="doctorAdviceList"
+          :pagination="false"
+        >
+          <template slot="area" slot-scope="text, record">
+            <a-button
+              type="link"
+              size="small"
+              icon="environment"
+              @click="handleAreaClick(record)"
+            >
+              {{ text }}
+            </a-button>
+          </template>
+          <template slot="content" slot-scope="text, record">
+            <a-textarea
+              v-model="record.content"
+              :placeholder="'请输入医嘱'"
+              :auto-size="{ minRows: 2, maxRows: 4 }"
+              @change="handleContentChange($event.target.value, record)"
+            />
+          </template>
+        </a-table>
+      </a-card>
 
+      <!-- 医师表格 -->
+      <a-card title="医师" style="margin-bottom: 16px" v-if="doctorList.length > 0">
+        <a-table
+          :columns="annotationColumns"
+          :dataSource="doctorList"
+          :pagination="false"
+        >
+          <template slot="area" slot-scope="text, record">
+            <a-button
+              type="link"
+              size="small"
+              icon="environment"
+              @click="handleAreaClick(record)"
+            >
+              {{ text }}
+            </a-button>
+          </template>
+          <template slot="content" slot-scope="text, record">
+            <a-textarea
+              v-model="record.content"
+              :placeholder="'请输入医师信息'"
+              :auto-size="{ minRows: 2, maxRows: 4 }"
+              @change="handleContentChange($event.target.value, record)"
+            />
+          </template>
+        </a-table>
+      </a-card>
     </div>
 
     <!-- 添加结果内容区域 -->
@@ -284,7 +327,6 @@
 import { message } from 'ant-design-vue'
 import { cloneDeep, debounce } from 'lodash-es'
 import { getDrugMaterialList, savePrescribeDetail, getEnabledDictDataListByType, robotPrescribeHelperImageSubmit } from '@/api/annotation'
-import { mapGetters } from 'vuex'
 import { validatePhoneNumber } from './DetailForm'
 
 export default {
@@ -304,88 +346,71 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('annotation', ['getActiveLabel']),
-    activeLabel () {
-      return this.getActiveLabel
-    },
-    labelConfigs () {
-      const configs = [
-        { value: '药剂药量', list: [] },
-        { value: '煎制方法', list: [] },
-        { value: '医嘱', list: [] },
-        { value: '医师', list: [] }
-      ]
-
-      // 处理药剂药量数据
-      const medicineConfig = configs.find(config => config.value === '药剂药量')
-      if (medicineConfig && this.detail.usageDrugs) {
-        // 先找出所有"药剂药量"类型的标注
-        const medicineLabels = this.detail.labelList?.filter(label =>
-          label.value?.rectanglelabels?.[0] === '药剂药量'
-        ) || []
-
-        console.log('找到的药剂药量标注:', medicineLabels)
-
-        medicineConfig.list = this.detail.usageDrugs.map((drug, index) => {
-          // 从 labelList 中找到对应的标注数据
-          // 1. 首先尝试通过 labelId 精确匹配
-          let labelData = this.detail.labelList?.find(label =>
-            label.id === drug.labelId &&
-            label.value?.rectanglelabels?.[0] === '药剂药量'
-          )
-
-          // 2. 如果没找到，尝试从所有"药剂药量"标注中找一个未使用的
-          if (!labelData && medicineLabels.length > 0) {
-            // 找出已经被使用的标注ID
-            const usedLabelIds = this.detail.usageDrugs
-              .filter(d => d.labelId && d !== drug)
-              .map(d => d.labelId)
-
-            // 找一个未被使用的标注
-            labelData = medicineLabels.find(label => !usedLabelIds.includes(label.id))
-
-            // 如果找到了，更新药材项的 labelId
-            if (labelData) {
-              drug.labelId = labelData.id
-            }
-          }
-
-          return {
-            ...drug,
-            labelId: drug.labelId || `temp-${drug.key}`,
-            area: `区域${index + 1}`,
-            content: labelData?.meta?.text?.[0] || drug.content || ''
-          }
-        })
-      }
-
-      // 处理其他标签数据
+    // 煎制方法列表
+    brewingMethodList () {
+      const list = []
       if (this.detail.labelList && Array.isArray(this.detail.labelList)) {
-        console.log(this.detail.labelList, 'this.detail.labelList===>')
         this.detail.labelList.forEach(label => {
-          if (label.value && Array.isArray(label.value?.rectanglelabels)) {
-            const rectangleLabel = label.value?.rectanglelabels?.[0]
-            if (rectangleLabel && rectangleLabel !== '药剂药量') {
-              const config = configs.find(c => c.value === rectangleLabel)
-              if (config) {
-                const existingLabel = config.list.find(item => item.labelId === label.id)
-                if (!existingLabel) {
-                  config.list.push({
-                    key: `label-${label.id}`,
-                    area: `区域${config.list.length + 1}`,
-                    labelId: label.id,
-                    content: label.meta?.text?.[0] || ''
-                  })
-                } else {
-                  existingLabel.content = label.meta?.text?.[0] || ''
-                }
-              }
+          if (label.value?.rectanglelabels?.[0] === '煎制方法') {
+            const existingLabel = list.find(item => item.labelId === label.id)
+            if (!existingLabel) {
+              list.push({
+                key: `label-${label.id}`,
+                area: `区域${list.length + 1}`,
+                labelId: label.id,
+                content: label.meta?.text?.[0] || ''
+              })
+            } else {
+              existingLabel.content = label.meta?.text?.[0] || ''
             }
           }
         })
       }
-
-      return configs
+      return list
+    },
+    // 医嘱列表
+    doctorAdviceList () {
+      const list = []
+      if (this.detail.labelList && Array.isArray(this.detail.labelList)) {
+        this.detail.labelList.forEach(label => {
+          if (label.value?.rectanglelabels?.[0] === '医嘱') {
+            const existingLabel = list.find(item => item.labelId === label.id)
+            if (!existingLabel) {
+              list.push({
+                key: `label-${label.id}`,
+                area: `区域${list.length + 1}`,
+                labelId: label.id,
+                content: label.meta?.text?.[0] || ''
+              })
+            } else {
+              existingLabel.content = label.meta?.text?.[0] || ''
+            }
+          }
+        })
+      }
+      return list
+    },
+    // 医师列表
+    doctorList () {
+      const list = []
+      if (this.detail.labelList && Array.isArray(this.detail.labelList)) {
+        this.detail.labelList.forEach(label => {
+          if (label.value?.rectanglelabels?.[0] === '医师') {
+            const existingLabel = list.find(item => item.labelId === label.id)
+            if (!existingLabel) {
+              list.push({
+                key: `label-${label.id}`,
+                area: `区域${list.length + 1}`,
+                labelId: label.id,
+                content: label.meta?.text?.[0] || ''
+              })
+            } else {
+              existingLabel.content = label.meta?.text?.[0] || ''
+            }
+          }
+        })
+      }
+      return list
     },
     // 格式化药材列表
     formatMedicines () {
@@ -525,6 +550,36 @@ export default {
     }
   },
   methods: {
+    // 同步药材与标注数据
+    syncMedicineWithLabels () {
+      if (!this.detail.usageDrugs || !this.detail.labelList) return
+
+      const medicineLabels = this.detail.labelList.filter(label =>
+        label.value?.rectanglelabels?.[0] === '药剂药量'
+      )
+
+      this.detail.usageDrugs.forEach((drug, index) => {
+        // 如果药材项还没有关联标注，尝试自动关联
+        if (!drug.labelId && medicineLabels.length > 0) {
+          // 找出已经被使用的标注ID
+          const usedLabelIds = this.detail.usageDrugs
+            .filter(d => d.labelId && d !== drug)
+            .map(d => d.labelId)
+
+          // 找一个未被使用的标注
+          const availableLabel = medicineLabels.find(label => !usedLabelIds.includes(label.id))
+          if (availableLabel) {
+            drug.labelId = availableLabel.id
+            drug.content = availableLabel.meta?.text?.[0] || drug.content || ''
+          }
+        }
+
+        // 确保有区域显示
+        if (!drug.area) {
+          drug.area = `区域${index + 1}`
+        }
+      })
+    },
     async getDrugMaterialList () {
       try {
         const res = await getDrugMaterialList({ name: '' })
@@ -740,9 +795,7 @@ export default {
         })
       }
     },
-    handleTabChange (key) {
-      this.$store.dispatch('annotation/setActiveLabel', key)
-    },
+
     handleSearch: async function (value) {
       if (!value) {
         this.searchResults = []
@@ -1055,8 +1108,6 @@ export default {
     // 点击添加标注
     handleAddAnnotation (record) {
       console.log(record, 'handleAddAnnotation record==>')
-      // 先切换到药剂药量标签
-      this.$store.dispatch('annotation/setActiveLabel', '药剂药量')
 
       // 通知 AnnotationArea 组件激活标注工具，并传递当前记录的 key
       this.$store.dispatch('annotation/setActivateAnnotation', {
@@ -1120,6 +1171,20 @@ export default {
       return true
     }
   },
+  watch: {
+    // 监听 detail 变化，确保数据同步
+    'detail': {
+      handler (newDetail) {
+        if (newDetail && newDetail.usageDrugs && newDetail.labelList) {
+          this.$nextTick(() => {
+            this.syncMedicineWithLabels()
+          })
+        }
+      },
+      deep: true,
+      immediate: true
+    }
+  },
   created () {
     // 初始化药材列表和处理方法列表
     this.getDrugMaterialList()
@@ -1129,14 +1194,9 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.table-header {
+.content-wrapper {
   background-color: #fff;
   padding: 10px;
-}
-
-.tabs-wrapper {
-  width: 100%;
-  margin-bottom: 10px;
 }
 
 // 添加固定列样式
