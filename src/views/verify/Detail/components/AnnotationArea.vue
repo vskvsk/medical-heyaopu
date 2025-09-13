@@ -101,13 +101,41 @@ export default {
     }
   },
   methods: {
+    // 获取图片URL列表，优先使用recipeimage字段
+    getImageUrls () {
+      // 优先使用 recipeimage 字段
+      if (this.detail?.recipeimage) {
+        // 如果 recipeimage 是字符串，转换为数组
+        if (typeof this.detail.recipeimage === 'string') {
+          return this.detail.recipeimage ? [this.detail.recipeimage] : this.getMockImageUrls()
+        }
+        // 如果 recipeimage 是数组，直接使用
+        if (Array.isArray(this.detail.recipeimage)) {
+          const validUrls = this.detail.recipeimage.filter(url => url && url.trim())
+          return validUrls.length > 0 ? validUrls : this.getMockImageUrls()
+        }
+      }
+
+      // 如果 recipeimage 不存在或为空，返回mock图片
+      return this.getMockImageUrls()
+    },
+
+    // 获取mock图片URL列表
+    getMockImageUrls () {
+      // 返回一个mock的网络图片URL
+      return [
+        'https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png'
+      ]
+    },
     handleRegionClick (regionId) {
       this.$store.dispatch('annotation/setActiveRegionId', regionId)
     },
     initializeLabelStudio () {
-      // 添加数据验证
-      if (!this.detail?.imgUrls?.length) {
-        console.warn('No image URLs available')
+      // 优先使用 recipeimage 字段，如果不存在则使用 imgUrls
+      const imageUrls = this.getImageUrls()
+
+      if (!imageUrls || !imageUrls.length) {
+        console.warn('No image URLs available from recipeimage or imgUrls')
         this.error = '没有可用的图片'
         this.loading = false
         return
@@ -142,7 +170,7 @@ export default {
       this.$nextTick(() => {
         try {
           // 判断是单图还是多图
-          const isMultiImage = this.detail.imgUrls.length > 1
+          const isMultiImage = imageUrls.length > 1
 
           // 生成标注配置
           let configTemplate = ''
@@ -153,8 +181,8 @@ export default {
             configTemplate = `
               <View>
                 <View style="display: flex; flex-direction: row; flex-wrap: wrap">
-                  ${this.detail.imgUrls.map((url, index) => `
-                  <View style="width: ${Math.floor(100 / this.detail.imgUrls.length) - (this.detail.imgUrls.length > 1 ? 1 : 0)}%; ${index < this.detail.imgUrls.length - 1 ? 'margin-right: 2%;' : ''} margin-bottom: 10px">
+                  ${imageUrls.map((url, index) => `
+                  <View style="width: ${Math.floor(100 / imageUrls.length) - (imageUrls.length > 1 ? 1 : 0)}%; ${index < imageUrls.length - 1 ? 'margin-right: 2%;' : ''} margin-bottom: 10px">
                     <Header value="图片 ${index + 1}" />
                     <RectangleLabels 
                       name="label${index + 1}" 
@@ -182,7 +210,7 @@ export default {
             `
 
             // 准备多图数据对象
-            this.detail.imgUrls.forEach((url, index) => {
+            imageUrls.forEach((url, index) => {
               dataObject[`image${index + 1}`] = url
             })
           } else {
@@ -205,7 +233,7 @@ export default {
             `
 
             // 准备单图数据对象
-            dataObject.image = this.detail.imgUrls[0]
+            dataObject.image = imageUrls[0]
           }
 
           const config = {
@@ -248,7 +276,8 @@ export default {
             onEntityCreate: (region) => {
               console.log(region, 'onEntityCreate ===>')
               // 判断是单图还是多图
-              const isMultiImage = this.detail.imgUrls.length > 1
+              const currentImageUrls = this.getImageUrls()
+              const isMultiImage = currentImageUrls.length > 1
 
               if (isMultiImage) {
                 // 多图模式
@@ -322,7 +351,8 @@ export default {
             // 标注删除
             onEntityDelete: (region) => {
               // 判断是单图还是多图
-              const isMultiImage = this.detail.imgUrls.length > 1
+              const currentImageUrls = this.getImageUrls()
+              const isMultiImage = currentImageUrls.length > 1
 
               // 获取标签类型和ID
               let labelType = null
@@ -385,7 +415,8 @@ export default {
             onUpdateAnnotation: (LS, annotation) => {
               const annotations = annotation.serializeAnnotation()
               // 判断是单图还是多图
-              const isMultiImage = this.detail.imgUrls.length > 1
+              const currentImageUrls = this.getImageUrls()
+              const isMultiImage = currentImageUrls.length > 1
               console.log('onUpdateAnnotation - 当前标注数据:', annotations)
               console.log('onUpdateAnnotation - 保存的标注列表:', this.saveLabelList)
               // 如果存在保存的标注列表，进行比对和更新
@@ -565,11 +596,12 @@ export default {
       console.log('applyDefaultSettings')
       try {
         // 判断是单图还是多图
-        const isMultiImage = this.detail.imgUrls.length > 1
+        const currentImageUrls = this.getImageUrls()
+        const isMultiImage = currentImageUrls.length > 1
 
         if (isMultiImage) {
           // 多图情况下，处理每个图片的控制按钮
-          this.detail.imgUrls.forEach((url, index) => {
+          currentImageUrls.forEach((url, index) => {
             // 为每个图片查找控制按钮
             const controlsContainer = document.querySelectorAll('.lsf-image-container')[index]
             if (!controlsContainer) return
@@ -657,13 +689,14 @@ export default {
       this.removeButtonListeners()
 
       // 判断是单图还是多图
-      const isMultiImage = this.detail.imgUrls.length > 1
+      const currentImageUrls = this.getImageUrls()
+      const isMultiImage = currentImageUrls.length > 1
 
       if (isMultiImage) {
         // 多图情况下，为每个图片设置事件监听
         this.buttonListeners = {}
 
-        this.detail.imgUrls.forEach((url, index) => {
+        currentImageUrls.forEach((url, index) => {
           // 为每个图片查找控制按钮
           const controlsContainer = document.querySelectorAll('.lsf-image-container')[index]
           if (!controlsContainer) return
@@ -839,11 +872,12 @@ export default {
       }
 
       // 判断是单图还是多图
-      const isMultiImage = this.detail.imgUrls.length > 1
+      const currentImageUrls = this.getImageUrls()
+      const isMultiImage = currentImageUrls.length > 1
 
       if (isMultiImage) {
         // 多图情况下，需要查找所有图片的regions
-        const imageIndices = Array.from({ length: this.detail.imgUrls.length }, (_, i) => i + 1)
+        const imageIndices = Array.from({ length: currentImageUrls.length }, (_, i) => i + 1)
         let targetRegion = null
 
         for (const index of imageIndices) {
@@ -918,7 +952,8 @@ export default {
       console.log('activateAnnotationTool')
 
       // 判断是单图还是多图
-      const isMultiImage = this.detail.imgUrls.length > 1
+      const currentImageUrls = this.getImageUrls()
+      const isMultiImage = currentImageUrls.length > 1
 
       // 查找并点击标签
       this.$nextTick(() => {
@@ -963,11 +998,12 @@ export default {
       }
 
       // 判断是单图还是多图
-      const isMultiImage = this.detail.imgUrls.length > 1
+      const currentImageUrls = this.getImageUrls()
+      const isMultiImage = currentImageUrls.length > 1
 
       if (isMultiImage) {
         // 多图情况下，需要查找所有图片的regions
-        const imageIndices = Array.from({ length: this.detail.imgUrls.length }, (_, i) => i + 1)
+        const imageIndices = Array.from({ length: currentImageUrls.length }, (_, i) => i + 1)
         let targetRegion = null
 
         for (const index of imageIndices) {

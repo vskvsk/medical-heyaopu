@@ -529,9 +529,9 @@ export default {
       try {
         const res = await getDrugMaterialList({ name: '' })
         if (res.code === 0 && res.data) {
-          this.allMedicines = res.data.map(item => ({
-            code: item.pkMaterial,
-            name: item.drugName
+          this.allMedicines = res.data.data.map(item => ({
+            code: item.pk_materials,
+            name: item.drug_name
           }))
           this.searchResults = [...this.allMedicines]
         } else {
@@ -546,7 +546,7 @@ export default {
       try {
         const res = await getEnabledDictDataListByType()
         if (res.code === 0 && res.data) {
-          this.drugProcessingList = res.data.map(item => ({
+          this.drugProcessingList = res.data.data.map(item => ({
             id: String(item.id), // 转为字符串是为了同步后端数据类型
             label: item.remark,
             remark: item.remark
@@ -753,12 +753,12 @@ export default {
       try {
         const res = await getDrugMaterialList({ name: value })
         if (res.code === 0 && res.data) {
-          this.searchResults = res.data.map(item => ({
-            code: item.pkMaterial,
-            name: item.drugName,
-            quantity: item.quantity || '',
-            retailPrice: item.drugPrice ? parseFloat(item.drugPrice).toFixed(2) : '',
-            conversionRate: item.drugRate || ''
+          this.searchResults = res.data.data.map(item => ({
+            code: item.pk_materials,
+            name: item.drug_name,
+            quantity: item.drug_upperlimit || '',
+            retailPrice: item.drug_price ? parseFloat(item.drug_price).toFixed(2) : '',
+            conversionRate: item.drug_rate || ''
           }))
         } else {
           message.error(res.msg || '获取药材列表失败')

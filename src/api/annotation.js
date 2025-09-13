@@ -18,7 +18,7 @@ const labelApi = {
   // 药剂和药材相关
   drugTypeFatherList: '/label/drugType/father_list',
   drugTypeSubList: '/label/drugType/sub_list',
-  drugMaterailList: '/label/drugMaterail/list',
+  drugMaterailList: '/htai/bd/drug_materials',
   getEnabledDictDataListByType: '/label/dict/getEnabledDictDataListByType?type=prod_method',
 
   // 保存详情
@@ -527,7 +527,7 @@ export function getDrugTypeSubList (fatherDrugType) {
   })
 }
 
-// 获取药材列表
+// 获取药材列表 - 适配和药铺接口
 export function getDrugMaterialList (data) {
   // 在mock环境下返回mock数据
   if (isMockMode()) {
@@ -538,13 +538,57 @@ export function getDrugMaterialList (data) {
     })
   }
 
-  // 生产环境使用真实接口
+  // 根据文档构造请求参数
+  const requestData = {
+    pk_druglevel: data.pk_druglevel || 'DIC2022010001', // 药品等级PK(必填项)
+    page: data.page || 1,
+    rows: data.rows || 10
+  }
+
+  // 可选参数
+  if (data.pk_prescribe) {
+    requestData.pk_prescribe = data.pk_prescribe // 处方单主键(复制处方明细时使用)
+  }
+
+  if (data.pk_prescript) {
+    requestData.pk_prescript = data.pk_prescript // 处方模板主键(参照处方模板时使用)
+  }
+
+  if (data.materials && Array.isArray(data.materials)) {
+    requestData.materials = data.materials // 指定药材查询
+  }
+
+  if (data.iaccessories) {
+    requestData.iaccessories = data.iaccessories // 获取辅料时使用
+  }
+
+  if (data.contain) {
+    requestData.contain = data.contain // 模糊查询，支持首字母、中文
+  }
+
+  // 生产环境使用和药铺接口
   return request({
     url: labelApi.drugMaterailList,
     method: 'post',
-    data,
+    data: requestData,
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'access_token': localStorage.getItem('Access-Token')?.replace('Bearer ', '') || ''
+    }
+  }).then(response => {
+    // 适配和药铺接口返回格式
+    if (response.errcode === 0 && response.data) {
+      return {
+        code: 0,
+        data: response.data,
+        message: response.errmsg || 'success'
+      }
+    } else {
+      return {
+        code: response.errcode || 500,
+        data: [],
+        message: response.errmsg || '获取药材列表失败'
+      }
     }
   })
 }
