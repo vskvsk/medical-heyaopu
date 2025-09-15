@@ -152,6 +152,14 @@ export function getPrescriptionList (parameter) {
     requestData.created_end = parameter.endTime
   }
 
+  // 添加状态参数支持
+  if (parameter.isNuclearSide !== undefined && parameter.isNuclearSide !== null) {
+    requestData.isNuclearSide = parameter.isNuclearSide
+  }
+  if (parameter.isSign !== undefined && parameter.isSign !== null) {
+    requestData.isSign = parameter.isSign
+  }
+
   return request({
     url: labelApi.prescriptionList,
     method: 'post',
@@ -186,15 +194,23 @@ export function getPrescriptionList (parameter) {
           merchantOrderId: item.vbillcode,
           payOrderNo: item.vbillcode,
           createTime: item.creationtime,
+          creationtime: item.creationtime, // 保留原字段名用于显示
           patientName: item.patient,
           patientPhone: item.cellphone,
+          patientSex: item.patient_sex,
+          patientAge: item.patient_age,
           doctorName: item.doctor,
           prescriptionStatus: item.fstatusflag_code,
           fstatusflag_name: item.fstatusflag_name, // 添加处方状态名称
           orderStatus: item.ispayment_name,
+          priceConsult: item.price_consult || 0,
+          priceDrug: item.price_drug || 0,
           priceTotal: parseFloat(item.cost_total || 0),
-          isNuclearSide: item.fstatusflag_code === '31', // 根据状态判断是否已核方
-          isSign: false // 默认未标注
+          dosageFormsName: item.dosage_forms_name,
+          prescribeType: item.prescribe_type || 2, // 默认为拍照开方
+          // 根据后端返回的字段设置状态
+          isNuclearSide: item.isNuclearSide !== undefined ? item.isNuclearSide : (item.fstatusflag_code === '31'),
+          isSign: item.isSign !== undefined ? item.isSign : false
         })),
         total: response.data.total || 0,
         pageNo: response.data.page || 1,
@@ -218,10 +234,23 @@ export function getPrescriptionList (parameter) {
 
 // 导出处方列表
 export function exportPrescriptionList (parameter) {
+  // 转换参数格式以适配后端接口
+  const requestData = {
+    ...parameter
+  }
+
+  // 添加状态参数支持
+  if (parameter.isNuclearSide !== undefined && parameter.isNuclearSide !== null) {
+    requestData.isNuclearSide = parameter.isNuclearSide
+  }
+  if (parameter.isSign !== undefined && parameter.isSign !== null) {
+    requestData.isSign = parameter.isSign
+  }
+
   return request({
     url: labelApi.prescriptionExport,
     method: 'post',
-    data: parameter,
+    data: requestData,
     responseType: 'blob' // 设置响应类型为blob以处理文件下载
   })
 }

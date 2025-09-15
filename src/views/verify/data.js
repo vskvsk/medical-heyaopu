@@ -51,7 +51,27 @@ export const columns = [
   // },
   {
     title: '处方状态',
-    dataIndex: 'fstatusflag_name'
+    dataIndex: 'prescriptionStatus',
+    customRender: (text, record) => {
+      const { isNuclearSide, isSign } = record
+      const statusParts = []
+
+      // 核方状态 - 处理字符串和布尔值
+      if (isNuclearSide === false || isNuclearSide === 'false') {
+        statusParts.push('待核方')
+      } else if (isNuclearSide === true || isNuclearSide === 'true') {
+        statusParts.push('已核方')
+      }
+
+      // 标注状态 - 处理字符串和布尔值
+      if (isSign === false || isSign === 'false') {
+        statusParts.push('待标注')
+      } else if (isSign === true || isSign === 'true') {
+        statusParts.push('已标注')
+      }
+
+      return statusParts.length > 0 ? statusParts.join('，') : '未知状态'
+    }
   },
   {
     title: '开方方式',

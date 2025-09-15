@@ -293,15 +293,16 @@
               :disabled="isVerified"
               @click="showConfirmModal('verify')"
             >
-              核方
+              {{ isVerified ? '已核方' : '核方' }}
             </a-button>
             <a-button
               type="primary"
               icon="check"
               style="flex: 1"
+              :disabled="isAnnotated"
               @click="showConfirmModal('annotation')"
             >
-              标注
+              {{ isAnnotated ? '已标注' : '标注' }}
             </a-button>
           </div>
         </div>
@@ -341,7 +342,11 @@ export default {
       default: false
     },
     isNuclearSide: {
-      type: Boolean,
+      type: [Boolean, String],
+      default: false
+    },
+    isSign: {
+      type: [Boolean, String],
       default: false
     }
   },
@@ -460,8 +465,13 @@ export default {
 
     // 是否已核方
     isVerified () {
-      // 根据传入的 isNuclearSide 参数判断是否已核方
-      return this.isNuclearSide
+      // 根据传入的 isNuclearSide 参数判断是否已核方，支持字符串和布尔值
+      return this.isNuclearSide === true || this.isNuclearSide === 'true'
+    },
+    // 是否已标注
+    isAnnotated () {
+      // 根据传入的 isSign 参数判断是否已标注，支持字符串和布尔值
+      return this.isSign === true || this.isSign === 'true'
     }
   },
   data () {

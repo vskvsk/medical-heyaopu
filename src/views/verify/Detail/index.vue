@@ -23,6 +23,7 @@
             class="annotation-right"
             :detail="detail"
             :isNuclearSide="isNuclearSide"
+            :isSign="isSign"
             @update:detail="handleDetailChange"
             @remove-annotation="handleRemoveAnnotation" />
         </div>
@@ -52,8 +53,10 @@ export default {
       // 预加载的辨病和辨证搜索结果
       preloadedDiseaseResults: [],
       preloadedSyndromeResults: [],
-      // 是否核方状态，从路由参数获取
+      // 是否核方状态，从接口数据获取
       isNuclearSide: false,
+      // 是否标注状态，从接口数据获取
+      isSign: false,
       // 字典数据
       dictionaries: [],
       detail: {
@@ -177,7 +180,13 @@ export default {
             // 处理医生处方详情数据 - 新结构包含labelList, prescribeId, isSign, params
             if (prescriptionData) {
               // 从新结构中提取数据
-              const { labelList, prescribeId, params } = prescriptionData
+              const { labelList, prescribeId, isSign, params } = prescriptionData
+
+              // 设置状态信息
+              this.isSign = isSign
+              if (params?.isNuclearSide !== undefined) {
+                this.isNuclearSide = params.isNuclearSide
+              }
               // 基础信息从params中获取
               detail.id = params?.id || prescribeId || detail.id
               detail.prescribeId = prescribeId || params?.id || detail.id

@@ -38,19 +38,7 @@
               <a-radio-button value="finished">已完成</a-radio-button>
             </a-radio-group>
           </a-col>
-          <a-col>
-            <span style="padding-right: 10px"> 轮询间隔</span>
-            <a-input-number
-              v-model="pollingInterval"
-              :min="60"
-              :max="10000"
-              :step="10"
-              placeholder="轮询间隔(秒)"
-              @change="handlePollingIntervalChange"
-              style="width: 100px"
-            />
-            <span style="padding-left: 10px"> 秒</span>
-          </a-col>
+
         </a-row>
       </div>
 
@@ -135,9 +123,7 @@ export default {
         finished: { isNuclearSide: true, isSign: true }
       },
       // 新增数据属性
-      unverifiedCount: 0,
-      pollingInterval: 60,
-      autoQueryTimer: null
+      unverifiedCount: 0
     }
   },
   methods: {
@@ -197,9 +183,6 @@ export default {
       this.queryParam.status = e.target.value
       if (e.target.value === 'unverified') {
         this.fetchUnverifiedCount()
-        this.startAutoQuery()
-      } else {
-        this.stopAutoQuery()
       }
       this.$refs.table.refresh(true)
     },
@@ -287,42 +270,14 @@ export default {
       const minutes = pad(date.getMinutes())
 
       return `${year}-${month}-${day} ${hours}:${minutes}`
-    },
-    // 处理轮询间隔变更
-    handlePollingIntervalChange (value) {
-      this.pollingInterval = value
-      if (this.queryParam.status === 'unverified') {
-        this.startAutoQuery()
-      }
-    },
-    // 启动自动查询
-    startAutoQuery () {
-      this.stopAutoQuery() // 先清除可能存在的定时器
-      this.autoQueryTimer = setInterval(async () => {
-        if (this.queryParam.status === 'unverified') {
-          await this.fetchUnverifiedCount()
-          // await this.$refs.table.refresh(true)
-        }
-      }, this.pollingInterval * 1000)
-    },
-    // 停止自动查询
-    stopAutoQuery () {
-      if (this.autoQueryTimer) {
-        clearInterval(this.autoQueryTimer)
-        this.autoQueryTimer = null
-      }
     }
+
   },
   created () {
-    // 如果初始状态是未核方，启动自动查询
+    // 如果初始状态是未核方，获取未核方数量
     if (this.queryParam.status === 'unverified') {
       this.fetchUnverifiedCount() // 初始化时获取未核方数量
-      this.startAutoQuery()
     }
-  },
-  beforeDestroy () {
-    // 组件销毁前清除定时器
-    this.stopAutoQuery()
   }
 }
 
