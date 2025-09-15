@@ -6,8 +6,6 @@
         <!-- 顶部表单 -->
         <DetailForm
           :value="detail"
-          :diseasePreloadedResults="preloadedDiseaseResults"
-          :syndromePreloadedResults="preloadedSyndromeResults"
           :dictionaries="dictionaries"
           @input="handleDetailChange" />
 
@@ -24,6 +22,7 @@
             :detail="detail"
             :isNuclearSide="isNuclearSide"
             :isSign="isSign"
+            :dictionaries="dictionaries"
             @update:detail="handleDetailChange"
             @remove-annotation="handleRemoveAnnotation" />
         </div>
@@ -33,7 +32,7 @@
 </template>
 
 <script>
-import { getPrescriptionDetail, queryLabel, getDictionaries } from '@/api/annotation'
+import { getPrescriptionDetail, getDictionaries } from '@/api/annotation'
 import { message } from 'ant-design-vue'
 import DetailForm from './components/DetailForm.vue'
 import MedicineTable from './components/MedicineTable.vue'
@@ -50,9 +49,7 @@ export default {
     return {
       loading: false,
       isDataReady: false,
-      // 预加载的辨病和辨证搜索结果
-      preloadedDiseaseResults: [],
-      preloadedSyndromeResults: [],
+
       // 是否核方状态，从接口数据获取
       isNuclearSide: false,
       // 是否标注状态，从接口数据获取
@@ -417,15 +414,8 @@ export default {
             this.detail = detail
             console.log(this.detail, 'detail')
 
-            // 预加载辨病和辨证的搜索结果
-            this.preloadDiseaseAndSyndromeResults()
-              .then(() => {
-                this.isDataReady = true
-              })
-              .catch(error => {
-                console.error('预加载辨病辨证数据失败:', error)
-                this.isDataReady = true // 即使预加载失败也继续显示页面
-              })
+            // 直接设置数据准备完成
+            this.isDataReady = true
           }
         })
         .catch(error => {
@@ -438,35 +428,6 @@ export default {
     handleRemoveAnnotation (labelId) {
       // 将事件传递给 AnnotationArea 组件
       this.$refs.annotationArea.handleRemoveAnnotation(labelId)
-    },
-
-    // 预加载辨病和辨证的搜索结果
-    async preloadDiseaseAndSyndromeResults () {
-      try {
-        // 同时请求辨病和辨证的数据
-        const [diseaseRes, syndromeRes] = await Promise.all([
-          queryLabel(2, ''), // 辨病 type=2
-          queryLabel(3, '') // 辨证 type=3
-        ])
-
-        // 处理辨病数据
-        if (diseaseRes.code === 0 && diseaseRes.data) {
-          this.preloadedDiseaseResults = diseaseRes.data
-        }
-
-        // 处理辨证数据
-        if (syndromeRes.code === 0 && syndromeRes.data) {
-          this.preloadedSyndromeResults = syndromeRes.data
-        }
-
-        console.log('预加载辨病辨证数据成功')
-      } catch (error) {
-        console.error('预加载辨病辨证数据失败:', error)
-        // 出错时设置为空数组
-        this.preloadedDiseaseResults = []
-        this.preloadedSyndromeResults = []
-        throw error // 向上传递错误
-      }
     }
   }
 }
