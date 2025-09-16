@@ -389,10 +389,16 @@ export function getPrescriptionDetail (id) {
           patientPhone: data.cellphone || '',
           doctorName: data.doctor || '',
           doctorAdvice: data.instructions || '',
+          instructions: data.instructions || '', // 医嘱说明字段
           // 中医相关信息
           patientChiefComplaint: data.mainsuit || '',
           patientSyndrome: data.syndrome || '',
           diagnose: data.diagnosis || '',
+          // 辨病辩证相关字段
+          symptom: data.symptom || '', // 辨病
+          dialectical: data.dialectical || '', // 辩证
+          trainofthought: data.trainofthought || '', // 治疗思路
+          issecurity: data.issecurity || '', // 处方方案
           // 处方用法信息
           dosageForms: data.pk_drugtype || '',
           drugLevel: data.pk_druglevel || '1',

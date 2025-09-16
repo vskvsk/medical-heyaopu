@@ -192,6 +192,13 @@ export default {
               detail.createTime = params?.createTime || detail.createTime
               detail.unixtimestamp = params?.unixtimestamp || detail.unixtimestamp
 
+              // 表单字段
+              detail.symptom = params?.symptom || detail.symptom
+              detail.dialectical = params?.dialectical || detail.dialectical
+              detail.trainofthought = params?.trainofthought || detail.trainofthought
+              detail.issecurity = params?.issecurity || detail.issecurity
+              detail.instructions = params?.instructions || detail.instructions
+
               // 图片信息 - 特殊处理数值字段
               detail.imgType = params?.imgType !== undefined
                 ? params.imgType
