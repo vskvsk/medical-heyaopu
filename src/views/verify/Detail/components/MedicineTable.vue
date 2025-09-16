@@ -293,7 +293,7 @@
               :disabled="isVerified"
               @click="showConfirmModal('verify')"
             >
-              {{ isVerified ? '已核方' : '核方' }}
+              核方
             </a-button>
             <a-button
               type="primary"
@@ -302,7 +302,7 @@
               :disabled="isAnnotated"
               @click="showConfirmModal('annotation')"
             >
-              {{ isAnnotated ? '已标注' : '标注' }}
+              标注
             </a-button>
           </div>
         </div>
@@ -327,7 +327,7 @@
 <script>
 import { message } from 'ant-design-vue'
 import { cloneDeep, debounce } from 'lodash-es'
-import { getDrugMaterialList, savePrescribeDetail, robotPrescribeHelperImageSubmit } from '@/api/annotation'
+import { getDrugMaterialList, updateImagePrescription } from '@/api/annotation'
 import { validatePhoneNumber } from './DetailForm'
 
 export default {
@@ -958,22 +958,22 @@ export default {
       }
 
       // 检查辨病、辩证、治疗思路、查看方案等必填字段
-      const { diseaseList, syndromeList, treatmentList, patientViewPlan } = this.detail
+      const { symptom, dialectical, trainofthought, issecurity } = this.detail
       const requiredFieldErrors = []
 
-      if (!diseaseList || diseaseList.length === 0) {
+      if (!symptom || symptom.trim() === '') {
         requiredFieldErrors.push('辨病')
       }
 
-      if (!syndromeList || syndromeList.length === 0) {
+      if (!dialectical || dialectical.trim() === '') {
         requiredFieldErrors.push('辩证')
       }
 
-      if (!treatmentList || treatmentList.length === 0) {
+      if (!trainofthought || trainofthought.trim() === '') {
         requiredFieldErrors.push('治疗思路')
       }
 
-      if (!patientViewPlan) {
+      if (!issecurity) {
         requiredFieldErrors.push('查看方案')
       }
 
@@ -1066,8 +1066,8 @@ export default {
         })
 
         if (this.currentAction === 'annotation') {
-          // 标注操作：只调用 savePrescribeDetail
-          const saveRes = await savePrescribeDetail(requestData)
+          // 标注操作：调用 updateImagePrescription
+          const saveRes = await updateImagePrescription(requestData)
 
           if (saveRes.code === 0) {
             message.success('标注保存成功')
@@ -1077,33 +1077,14 @@ export default {
             message.error(saveRes.msg || '保存标注详情失败')
           }
         } else if (this.currentAction === 'verify') {
-          // 核方操作：根据"同步标注"复选框决定调用哪些接口
-          if (this.detail.labeled) {
-            // 勾选了"同步标注"：调用两个接口
-            const saveRes = await savePrescribeDetail(requestData)
-            if (saveRes.code !== 0) {
-              message.error(saveRes.msg || '保存标注详情失败')
-              return
-            }
-
-            const submitRes = await robotPrescribeHelperImageSubmit(requestData)
-            if (submitRes.code === 0) {
-              message.success('核方完成')
-              this.confirmModalVisible = false
-              this.$router.push('/verify/list')
-            } else {
-              message.error(submitRes.msg || '生成电子处方失败')
-            }
+          // 核方操作：调用 updateImagePrescription 接口
+          const submitRes = await updateImagePrescription(requestData)
+          if (submitRes.code === 0) {
+            message.success('核方完成')
+            this.confirmModalVisible = false
+            this.$router.push('/verify/list')
           } else {
-            // 没有勾选"同步标注"：只调用 robotPrescribeHelperImageSubmit
-            const submitRes = await robotPrescribeHelperImageSubmit(requestData)
-            if (submitRes.code === 0) {
-              message.success('核方完成')
-              this.confirmModalVisible = false
-              this.$router.push('/verify/list')
-            } else {
-              message.error(submitRes.msg || '生成电子处方失败')
-            }
+            message.error(submitRes.msg || '核方失败')
           }
         }
       } catch (error) {
@@ -1156,23 +1137,23 @@ export default {
 
     // 验证必填字段
     validateRequiredFields () {
-      const { diseaseList, syndromeList, treatmentList, patientViewPlan } = this.detail
+      const { symptom, dialectical, trainofthought, issecurity } = this.detail
 
       const errors = []
 
-      if (!diseaseList || diseaseList.length === 0) {
+      if (!symptom || symptom.trim() === '') {
         errors.push('辨病')
       }
 
-      if (!syndromeList || syndromeList.length === 0) {
+      if (!dialectical || dialectical.trim() === '') {
         errors.push('辩证')
       }
 
-      if (!treatmentList || treatmentList.length === 0) {
+      if (!trainofthought || trainofthought.trim() === '') {
         errors.push('治疗思路')
       }
 
-      if (!patientViewPlan) {
+      if (!issecurity) {
         errors.push('查看方案')
       }
 

@@ -417,7 +417,9 @@ export function getPrescriptionDetail (id) {
           // 标注相关数据
           imgType: labelstudioData.imgType || '',
           rotationDegree: labelstudioData.rotationDegree || 0,
-          zoomLevel: labelstudioData.zoomLevel || 1
+          zoomLevel: labelstudioData.zoomLevel || 1,
+          // 时间戳字段
+          unixtimestamp: data.unixtimestamp || ''
         }
       }
 

@@ -190,6 +190,7 @@ export default {
               detail.merchantOrderId = params?.merchantOrderId || detail.merchantOrderId
               detail.payOrderNo = params?.payOrderNo || detail.payOrderNo
               detail.createTime = params?.createTime || detail.createTime
+              detail.unixtimestamp = params?.unixtimestamp || detail.unixtimestamp
 
               // 图片信息 - 特殊处理数值字段
               detail.imgType = params?.imgType !== undefined

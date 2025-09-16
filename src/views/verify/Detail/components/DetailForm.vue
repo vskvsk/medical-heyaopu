@@ -165,9 +165,11 @@
           <!-- 第五行：医嘱和其他信息 -->
           <a-col :span="6">
             <a-form-item label="医嘱说明">
-              <div class="advice-input-container" @click="showMedicalAdviceModal">
-                <a-input :value="value.doctorAdvice" placeholder="点击编辑医嘱" read-only />
-              </div>
+              <a-input
+                :value="value.instructions"
+                placeholder="请输入医嘱说明"
+                @input="handleFormChange($event, 'instructions')"
+              />
             </a-form-item>
           </a-col>
 
@@ -235,14 +237,6 @@
       </a-form>
     </div>
 
-    <!-- 医嘱弹窗 -->
-    <MedicalAdviceModal
-      :visible="medicalAdviceModalVisible"
-      :initialValue="value.doctorAdvice"
-      @save="handleMedicalAdviceSave"
-      @cancel="handleMedicalAdviceCancel"
-    />
-
   </a-card>
 </template>
 
@@ -250,7 +244,6 @@
 import { TreeSelect } from 'ant-design-vue'
 import { getDosageFormsData } from '@/api/annotation'
 import SearchableTagInput from './SearchableTagInput'
-import MedicalAdviceModal from './MedicalAdviceModal'
 
 // 导出手机号验证函数供其他组件使用
 export const validatePhoneNumber = (phone) => {
@@ -280,8 +273,7 @@ export default {
   },
   components: {
     'a-tree-select': TreeSelect,
-    SearchableTagInput,
-    MedicalAdviceModal
+    SearchableTagInput
   },
   data () {
     return {
@@ -322,9 +314,7 @@ export default {
         dialectical: false,
         trainofthought: false,
         issecurity: false
-      },
-      // 弹窗显示状态
-      medicalAdviceModalVisible: false
+      }
     }
   },
   computed: {
@@ -661,24 +651,6 @@ export default {
       return isValid
     },
 
-    // 显示医嘱弹窗
-    showMedicalAdviceModal () {
-      this.medicalAdviceModalVisible = true
-    },
-
-    // 处理医嘱保存
-    handleMedicalAdviceSave (adviceText) {
-      const newValue = { ...this.value }
-      newValue.doctorAdvice = adviceText
-      this.$emit('input', newValue)
-      this.medicalAdviceModalVisible = false
-    },
-
-    // 处理医嘱取消
-    handleMedicalAdviceCancel () {
-      this.medicalAdviceModalVisible = false
-    },
-
     // 获取药剂类型数据
     async fetchDosageFormsData () {
       try {
@@ -842,25 +814,4 @@ export default {
   // }
 }
 
-.advice-input-container {
-  position: relative;
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-
-  :deep(.ant-input[disabled]) {
-    cursor: pointer;
-    background-color: #f9f9f9;
-    color: rgba(0, 0, 0, 0.65);
-    border-color: #d9d9d9;
-  }
-
-  .advice-edit-btn {
-    position: absolute;
-    right: 0;
-    padding: 0 8px;
-    height: 32px;
-    z-index: 1; /* Ensure the button is above the input */
-  }
-}
 </style>
