@@ -327,7 +327,7 @@
 <script>
 import { message } from 'ant-design-vue'
 import { cloneDeep, debounce } from 'lodash-es'
-import { getDrugMaterialList, savePrescribeDetail, getEnabledDictDataListByType, robotPrescribeHelperImageSubmit } from '@/api/annotation'
+import { getDrugMaterialList, savePrescribeDetail, robotPrescribeHelperImageSubmit } from '@/api/annotation'
 import { validatePhoneNumber } from './DetailForm'
 
 export default {
@@ -348,6 +348,10 @@ export default {
     isSign: {
       type: [Boolean, String],
       default: false
+    },
+    dictionaries: {
+      type: Array,
+      default: () => []
     }
   },
   computed: {
@@ -472,6 +476,20 @@ export default {
     isAnnotated () {
       // 根据传入的 isSign 参数判断是否已标注，支持字符串和布尔值
       return this.isSign === true || this.isSign === 'true'
+    },
+    // 加工工艺列表
+    drugProcessingList () {
+      // 从字典数据中获取 code 为 'processing' 的列表项
+      const processingDict = this.dictionaries.find(dict => dict.code === 'processing')
+      if (processingDict && processingDict.childrens) {
+        return processingDict.childrens.map(item => ({
+          id: item.code,
+          label: item.text,
+          remark: item.text,
+          value: item.value
+        }))
+      }
+      return []
     }
   },
   data () {
@@ -554,7 +572,7 @@ export default {
       searchResults: [],
       allMedicines: [],
       searching: false,
-      drugProcessingList: [],
+
       validationErrors: {},
       currentAction: '' // 当前操作类型：'annotation' 或 'verify'
     }
@@ -607,22 +625,7 @@ export default {
         message.error('获取药材列表失败')
       }
     },
-    async getEnabledDictDataListByType () {
-      try {
-        const res = await getEnabledDictDataListByType()
-        if (res.code === 0 && res.data) {
-          this.drugProcessingList = res.data.data.map(item => ({
-            id: String(item.id), // 转为字符串是为了同步后端数据类型
-            label: item.remark,
-            remark: item.remark
-          }))
-        } else {
-          message.error(res.msg || '获取下拉列表失败')
-        }
-      } catch (error) {
-        console.error('获取下拉列表失败:', error)
-      }
-    },
+
     handleContentChange (value, record) {
       if (record.labelId && this.detail.labelList) {
         const newLabelList = [...this.detail.labelList]
@@ -1196,9 +1199,8 @@ export default {
     }
   },
   created () {
-    // 初始化药材列表和处理方法列表
+    // 初始化药材列表
     this.getDrugMaterialList()
-    this.getEnabledDictDataListByType()
   }
 }
 </script>
