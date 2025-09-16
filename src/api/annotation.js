@@ -21,8 +21,6 @@ const labelApi = {
   drugMaterailList: '/htai/bd/drug_materials',
   getEnabledDictDataListByType: '/label/dict/getEnabledDictDataListByType?type=prod_method',
 
-  // 保存详情
-  savePrescribeDetail: '/label/prescribe/savePrescribeDetail',
   // 小助手-拍照开方-生成电子处方
   robotPrescribeHelperImageSubmit: '/robot/prescribe/helper-image-submit',
   // 获取开方详情
@@ -358,8 +356,26 @@ export function getPrescriptionDetail (id) {
         retailPrice: '0' // 和药铺接口中没有价格信息，设为默认值
       }))
 
+      // 处理 labelstudio 字段
+      let labelstudioData = {
+        labelList: [],
+        imgType: '',
+        rotationDegree: 0,
+        zoomLevel: 1
+      }
+
+      if (data.labelstudio) {
+        try {
+          labelstudioData = typeof data.labelstudio === 'string'
+            ? JSON.parse(data.labelstudio)
+            : data.labelstudio
+        } catch (error) {
+          console.error('解析 labelstudio 数据失败:', error)
+        }
+      }
+
       const transformedData = {
-        labelList: [], // 和药铺接口中没有标注信息，设为空数组
+        labelList: labelstudioData.labelList || [],
         prescribeId: data.pk_prescribe,
         isSign: false, // 默认未标注
         params: {
@@ -397,7 +413,11 @@ export function getPrescriptionDetail (id) {
           // 其他信息
           drugstoreMessage: data.additionalremarks || '',
           medicationTime: data.medicat_time || '',
-          medicationTaboo: data.medicat_taboo || ''
+          medicationTaboo: data.medicat_taboo || '',
+          // 标注相关数据
+          imgType: labelstudioData.imgType || '',
+          rotationDegree: labelstudioData.rotationDegree || 0,
+          zoomLevel: labelstudioData.zoomLevel || 1
         }
       }
 
@@ -435,11 +455,20 @@ export function updateImagePrescription (data) {
     })
   }
 
+  // 构建 labelstudio 数据
+  const labelstudioData = {
+    labelList: data.labelList || [],
+    imgType: data.imgType || '',
+    rotationDegree: data.rotationDegree || 0,
+    zoomLevel: data.zoomLevel || 1
+  }
+
   // 转换数据格式以适配和药铺接口
   const requestData = {
     pk_prescribe: data.pk_prescribe || data.id || data.prescribeId,
     unixtimestamp: data.unixtimestamp || Date.now().toString(),
     fstatusflag: data.fstatusflag || '30', // 默认已付款状态
+    labelstudio: JSON.stringify(labelstudioData), // 添加标注数据字段
     doctor: data.doctorName || data.doctor || '',
     patient: data.patientName || data.patient || '',
     cellphone: data.patientPhone || data.cellphone || '',
@@ -618,40 +647,6 @@ export function getDrugMaterialList (data) {
         data: [],
         message: response.errmsg || '获取药材列表失败'
       }
-    }
-  })
-}
-
-// 保存标注详情
-export function savePrescribeDetail (data) {
-  // 根据用户要求调整参数结构为四个键值
-  const requestData = {
-    id: data.id || data.prescribeId, // 使用prescribeId作为主要标识符，如果没有则使用id
-    labelList: data.labelList || [],
-    prescribeId: data.id || data.prescribeId, // 确保prescribeId有值
-    isSign: data.isSign || false,
-    params: {
-      imgType: data.imgType,
-      materialList: data.materialList || data.usageDrugs?.map(drug => ({
-        pkMaterial: drug.medicineCode || drug.id || '',
-        drugName: drug.medicineName || drug.drugForshort || '',
-        dosage: drug.quantity || '',
-        drugUnitName: drug.unit || '',
-        drugPrice: drug.retailPrice || '0',
-        drugProcessingName: drug.processMethod || '',
-        drugProcessing: drug.drugProcessing || ''
-      })) || [],
-      rotationDegree: data.rotationDegree,
-      zoomLevel: data.zoomLevel
-    }
-  }
-
-  return request({
-    url: labelApi.savePrescribeDetail,
-    method: 'post',
-    data: requestData,
-    headers: {
-      'Content-Type': 'application/json'
     }
   })
 }
