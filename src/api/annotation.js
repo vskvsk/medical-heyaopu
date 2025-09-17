@@ -352,7 +352,7 @@ export function getPrescriptionDetail (id) {
         unit: detail.pk_drug_unit_name,
         drugUnitName: detail.pk_drug_unit_name,
         drugProcessingName: detail.pk_drug_processing_name,
-        drugProcessing: detail.pk_drug_processing,
+        drugProcessing: detail.drug_processing || detail.pk_drug_processing,
         retailPrice: '0' // 和药铺接口中没有价格信息，设为默认值
       }))
 
@@ -425,7 +425,9 @@ export function getPrescriptionDetail (id) {
           rotationDegree: labelstudioData.rotationDegree || 0,
           zoomLevel: labelstudioData.zoomLevel || 1,
           // 时间戳字段
-          unixtimestamp: data.unixtimestamp || ''
+          unixtimestamp: data.unixtimestamp || '',
+          // 处方图片字段
+          recipeimage: data.recipeimage || ''
         }
       }
 
@@ -477,6 +479,8 @@ export function updateImagePrescription (data) {
     unixtimestamp: data.unixtimestamp || Date.now().toString(),
     fstatusflag: data.fstatusflag || '30', // 默认已付款状态
     labelstudio: JSON.stringify(labelstudioData), // 添加标注数据字段
+    isNuclearSide: data.isNuclearSide || 'false', // 是否核方
+    isSign: data.isSign || 'false', // 是否标注
     doctor: data.doctorName || data.doctor || '',
     patient: data.patientName || data.patient || '',
     cellphone: data.patientPhone || data.cellphone || '',

@@ -124,7 +124,7 @@ export default {
     getMockImageUrls () {
       // 返回一个mock的网络图片URL
       return [
-        'https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png'
+        // 'https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png'
       ]
     },
     handleRegionClick (regionId) {

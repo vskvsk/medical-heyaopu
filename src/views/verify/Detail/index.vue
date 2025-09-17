@@ -199,6 +199,14 @@ export default {
               detail.issecurity = params?.issecurity || detail.issecurity
               detail.instructions = params?.instructions || detail.instructions
 
+              // 患者信息字段
+              detail.patientName = params?.patientName || detail.patientName
+              detail.patientPhone = params?.patientPhone || detail.patientPhone
+              detail.patientAge = params?.patientAge || detail.patientAge
+              detail.patientSex = params?.patientSex || detail.patientSex
+              detail.drugstoreMessage = params?.drugstoreMessage || detail.drugstoreMessage
+              detail.recipeimage = params?.recipeimage || detail.recipeimage
+
               // 图片信息 - 特殊处理数值字段
               detail.imgType = params?.imgType !== undefined
                 ? params.imgType

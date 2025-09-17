@@ -1047,8 +1047,10 @@ export default {
           usageDrugs: this.detail.usageDrugs || [],
           // materialList 传递实际的药材数据
           materialList: this.detail.usageDrugs || [],
-          // 是否标注的字段：标注操作 或 核方时勾选了同步标注
-          isSign: this.currentAction === 'annotation' || (this.currentAction === 'verify' && this.detail.labeled),
+          // 根据不同操作设置不同的字段
+          isSign: (this.currentAction === 'annotation' || (this.currentAction === 'verify' && this.detail.labeled)) ? 'true' : 'false',
+          isNuclearSide: this.currentAction === 'verify' ? 'true' : 'false',
+          labelstudio: this.currentAction === 'verify',
           followUpContent: '注意饮食',
           medicationEndDelivery: false,
           medicalRecordContent: '注意饮食',
