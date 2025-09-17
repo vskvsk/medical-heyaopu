@@ -14,7 +14,7 @@
 
 export default {
   navTheme: 'light', // theme for nav menu
-  primaryColor: '#13C2C2', // '#F5222D', // primary color of 智赋岐黄标柱系统
+  primaryColor: '#13C2C2', // '#F5222D', // primary color of 和药铺标柱系统
   layout: 'topmenu', // nav menu position: `sidemenu` or `topmenu`
   contentWidth: 'Fluid', // layout of content: `Fluid` or `Fixed`, only works when layout is topmenu
   fixedHeader: false, // sticky header
@@ -26,7 +26,7 @@ export default {
   menu: {
     locale: true
   },
-  title: '智赋岐黄标柱系统',
+  title: '和药铺标柱系统',
   pwa: false,
   iconfontUrl: '',
   production: process.env.NODE_ENV === 'production' && process.env.VUE_APP_PREVIEW !== 'true'

@@ -144,8 +144,8 @@ export default {
       console.log(this.detail, 'detail==>')
       // 确保 DOM 元素存在
       if (!this.$refs.labelStudioContainer) {
-        console.error('智赋岐黄标柱系统 container not found')
-        this.error = '智赋岐黄标柱系统 container not found'
+        console.error('和药铺标柱系统 container not found')
+        this.error = '和药铺标柱系统 container not found'
         return
       }
 
@@ -259,7 +259,7 @@ export default {
               data: dataObject
             },
             onLabelStudioLoad: (LS) => {
-              console.log('智赋岐黄标柱系统 has loaded!')
+              console.log('和药铺标柱系统 has loaded!')
               console.log('初始化时的labelList数据:', this.detail.labelList)
               console.log('LabelStudio任务数据:', LS.task)
               // 标注插件加载完成后，设置默认的放大倍数和旋转角度
@@ -585,7 +585,7 @@ export default {
           this.labelStudio = new LabelStudio('label-studio', config)
           this.loading = false
         } catch (error) {
-          console.error('Failed to initialize 智赋岐黄标柱系统:', error)
+          console.error('Failed to initialize 和药铺标柱系统:', error)
           this.error = error.message
           this.loading = false
         }

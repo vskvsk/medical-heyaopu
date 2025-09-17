@@ -4,8 +4,8 @@ import { builder, getQueryParameters } from '../util'
 const titles = [
   'Alipay',
   'Angular',
-  '智赋岐黄标柱系统',
-  '智赋岐黄标柱系统',
+  '和药铺标柱系统',
+  '和药铺标柱系统',
   'Bootstrap',
   'React',
   'Vue',

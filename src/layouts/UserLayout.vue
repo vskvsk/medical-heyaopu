@@ -10,7 +10,7 @@
           <div class="header">
             <a href="/">
               <img src="~@/assets/logo.svg" class="logo" alt="logo">
-              <span class="title">智赋岐黄标柱系统</span>
+              <span class="title">和药铺标柱系统</span>
             </a>
           </div>
           <div class="desc">

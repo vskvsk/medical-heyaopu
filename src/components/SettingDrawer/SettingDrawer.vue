@@ -218,7 +218,7 @@ export default {
     doCopy () {
       // get current settings from mixin or this.$store.state.app, pay attention to the property name
       const text = `export default {
-  primaryColor: '${this.primaryColor}', // primary color of 智赋岐黄标柱系统
+  primaryColor: '${this.primaryColor}', // primary color of 和药铺标柱系统
   navTheme: '${this.navTheme}', // theme for nav menu
   layout: '${this.layoutMode}', // nav menu position: sidemenu or topmenu
   contentWidth: '${this.contentWidth}', // layout of content: Fluid or Fixed, only works when layout is topmenu
