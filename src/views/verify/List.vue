@@ -200,7 +200,9 @@ export default {
 
       // 构造与查询列表一致的参数
       const params = {
-        keyword: this.queryParam.keyword
+        keyword: this.queryParam.keyword,
+        page: 1,
+        rows: 5000 // 导出大量数据
       }
 
       // 添加状态参数，与查询列表保持一致
@@ -209,22 +211,29 @@ export default {
       }
 
       exportPrescriptionList(params).then(response => {
-        // 创建 Blob 对象
-        const blob = new Blob([response], { type: 'application/vnd.ms-excel' })
-        // 创建下载链接
-        const link = document.createElement('a')
-        link.href = window.URL.createObjectURL(blob)
-        // 设置文件名
-        link.download = `核方列表_${new Date().getTime()}.xlsx`
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link)
-        window.URL.revokeObjectURL(link.href)
+        if (response.code === 0 && response.data) {
+          const { filename, filepath } = response.data
 
-        message.success('导出成功')
+          if (filepath) {
+            // 使用服务器返回的文件路径进行下载
+            const link = document.createElement('a')
+            link.href = filepath
+            link.download = filename || `核方列表_${new Date().getTime()}.xlsx`
+            link.target = '_blank' // 在新窗口打开，避免跨域问题
+            document.body.appendChild(link)
+            link.click()
+            document.body.removeChild(link)
+
+            message.success('导出成功')
+          } else {
+            message.error('导出失败：未获取到下载链接')
+          }
+        } else {
+          message.error('导出失败：' + (response.message || '未知错误'))
+        }
       }).catch(error => {
         console.error('导出失败:', error)
-        message.error('导出失败：' + (error.message || '未知错误'))
+        message.error('导出失败：' + (error.message || '网络错误'))
       }).finally(() => {
         hide()
       })

@@ -10,7 +10,7 @@ const labelApi = {
 
   // 处方相关 - 和药铺接口
   prescriptionList: '/htai/prescribe/photo',
-  prescriptionExport: '/label/prescribe/export',
+  prescriptionExport: '/htai/prescribe/download',
   prescriptionDetail: '/htai/prescribe/load',
   updateImagePrescription: '/htai/prescribe/update',
   getNewCount: '/label/prescribe/getNewCount',
@@ -232,9 +232,21 @@ export function getPrescriptionList (parameter) {
 
 // 导出处方列表
 export function exportPrescriptionList (parameter) {
-  // 转换参数格式以适配后端接口
+  // 转换参数格式以适配和药铺接口文档
   const requestData = {
-    ...parameter
+    page: parameter.page || 1,
+    rows: parameter.rows || 5000 // 默认导出5000条
+  }
+
+  // 根据关键词设置查询条件
+  if (parameter.keyword) {
+    // 如果关键词是纯数字，可能是处方单号
+    if (/^\d+$/.test(parameter.keyword)) {
+      requestData.pk_prescribe = parameter.keyword
+    } else {
+      // 否则作为医生姓名搜索
+      requestData.doctor = parameter.keyword
+    }
   }
 
   // 添加状态参数支持
@@ -245,11 +257,38 @@ export function exportPrescriptionList (parameter) {
     requestData.isSign = parameter.isSign
   }
 
+  // 添加时间范围查询（如果需要的话）
+  if (parameter.startTime) {
+    requestData.created_start = parameter.startTime
+  }
+  if (parameter.endTime) {
+    requestData.created_end = parameter.endTime
+  }
+
   return request({
     url: labelApi.prescriptionExport,
     method: 'post',
-    data: requestData,
-    responseType: 'blob' // 设置响应类型为blob以处理文件下载
+    headers: {
+      'Content-Type': 'application/json',
+      'access_token': localStorage.getItem('Access-Token')?.replace('Bearer ', '') || ''
+    },
+    data: requestData
+    // 移除 responseType: 'blob'，因为接口返回的是JSON格式的下载链接
+  }).then(response => {
+    // 适配和药铺接口返回格式
+    if (response.ErrCode === 0 || response.errcode === 0) {
+      return {
+        code: 0,
+        data: response.Data || response.data,
+        message: response.ErrMsg || response.errmsg || 'success'
+      }
+    } else {
+      return {
+        code: response.ErrCode || response.errcode || 500,
+        data: null,
+        message: response.ErrMsg || response.errmsg || '导出失败'
+      }
+    }
   })
 }
 
