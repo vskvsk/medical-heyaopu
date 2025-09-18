@@ -40,6 +40,9 @@ const assetsCDN = {
 
 // vue.config.js
 const vueConfig = {
+  // 设置静态资源的公共路径
+  publicPath: process.env.NODE_ENV === 'production' ? './' : '/',
+
   configureWebpack: {
     // webpack plugins
     plugins: [

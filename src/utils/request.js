@@ -5,11 +5,29 @@ import notification from 'ant-design-vue/es/notification'
 import { VueAxios } from './axios'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
 
+// 动态获取API基础路径
+function getApiBaseUrl () {
+  if (process.env.NODE_ENV === 'development') {
+    // 开发环境使用空字符串以便代理生效
+    return ''
+  } else {
+    // 生产环境根据配置决定使用相对路径还是绝对路径
+    if (process.env.VUE_APP_USE_RELATIVE_API === 'true') {
+      // 使用相对路径，基于当前部署位置
+      const currentPath = window.location.pathname
+      const basePath = currentPath.endsWith('/') ? currentPath.slice(0, -1) : currentPath.replace(/\/[^/]*$/, '')
+      return basePath || ''
+    } else {
+      // 使用配置的绝对路径
+      return process.env.VUE_APP_API_BASE_URL
+    }
+  }
+}
+
 // 创建 axios 实例
 const request = axios.create({
   // API 请求的默认前缀
-  // 开发环境使用空字符串以便代理生效，生产环境使用完整URL
-  baseURL: process.env.NODE_ENV === 'development' ? '' : process.env.VUE_APP_API_BASE_URL,
+  baseURL: getApiBaseUrl(),
   timeout: 15000 // 请求超时时间
 })
 
