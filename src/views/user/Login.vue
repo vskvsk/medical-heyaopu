@@ -18,7 +18,7 @@
           :placeholder="'账号'"
           v-decorator="[
             'mobile',
-            // {rules: [{ required: true, pattern: /^1[34578]\d{9}$/, message: '请输入正确的手机号' }], validateTrigger: 'change', initialValue: '18655350329'},
+            { initialValue: 'admin'},
             // {rules: [{ required: true, pattern: /^1[34578]\d{9}$/, message: '请输入正确的手机号' }], validateTrigger: 'change', initialValue: '18037470971'}
 
           ]"
@@ -33,7 +33,7 @@
           :placeholder="'密码'"
           v-decorator="[
             'password',
-            {rules: [{ required: true, message: '请输入密码' }], validateTrigger: 'blur', initialValue: '123456'},
+            {rules: [{ required: true, message: '请输入密码' }], validateTrigger: 'blur', initialValue: '1111'},
             // {rules: [{ required: true, message: '请输入密码' }], validateTrigger: 'blur', initialValue: '123456'}
           ]"
         >

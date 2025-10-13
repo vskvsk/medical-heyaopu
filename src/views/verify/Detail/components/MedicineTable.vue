@@ -817,8 +817,16 @@ export default {
       }
       this.searching = true
       try {
-        const res = await getDrugMaterialList({ name: value })
-        if (res.code === 0 && res.data) {
+        // 根据接口文档使用正确的参数格式
+        const requestParams = {
+          pk_druglevel: this.detail.pk_druglevel || 'DIC2022010001', // 药品等级PK(必填项)
+          contain: value, // 模糊查询，支持首字母、中文
+          page: 1,
+          rows: 20 // 获取前20条结果
+        }
+
+        const res = await getDrugMaterialList(requestParams)
+        if (res.code === 0 && res.data && res.data.data && Array.isArray(res.data.data)) {
           this.searchResults = res.data.data.map(item => ({
             code: item.pk_materials,
             name: item.drug_name,
@@ -826,8 +834,17 @@ export default {
             retailPrice: item.drug_price ? parseFloat(item.drug_price).toFixed(2) : '',
             conversionRate: item.drug_rate || ''
           }))
+        } else if (res.data && Array.isArray(res.data)) {
+          // 处理直接返回数组的情况
+          this.searchResults = res.data.map(item => ({
+            code: item.pk_materials,
+            name: item.drug_name,
+            quantity: item.drug_upperlimit || '',
+            retailPrice: item.drug_price ? parseFloat(item.drug_price).toFixed(2) : '',
+            conversionRate: item.drug_rate || ''
+          }))
         } else {
-          message.error(res.msg || '获取药材列表失败')
+          message.error(res.message || res.errmsg || '获取药材列表失败')
         }
       } catch (error) {
         console.error('获取药材列表失败:', error)
